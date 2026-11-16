@@ -3,9 +3,8 @@ import type { RefObject } from 'react'
 export interface Portrait {
   id: string
   name: string
+  /** Year of office / relevant years, e.g. "1945–1967". */
   years: string
-  position: string
-  description?: string
   /** Optional local image path. Falls back to a generated placeholder when missing. */
   imagePath?: string
 }

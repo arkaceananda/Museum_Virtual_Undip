@@ -1,16 +1,29 @@
+import { useMemo } from 'react'
 import type { GalleryLightingProps } from './types'
+import { CORRIDOR } from './layout'
 
 /**
- * Warm museum lighting: ambient fill, pools of light along the corridor,
- * a soft key light, and (desktop only) one shadow-casting spotlight.
+ * Warm museum lighting: ambient fill, pools of light spread along the
+ * corridor (count scales with corridor length), a soft key light, and
+ * (desktop only) one shadow-casting spotlight near the entrance.
  */
 export function GalleryLighting({ castShadows }: GalleryLightingProps) {
+  const poolZs = useMemo(() => {
+    const length = CORRIDOR.zFront - CORRIDOR.zBack
+    const count = Math.min(10, Math.max(3, Math.round(length / 6.5)))
+    const start = CORRIDOR.zFront - 2.5
+    const end = CORRIDOR.zBack + 2.5
+    return Array.from({ length: count }, (_, i) =>
+      count === 1 ? (start + end) / 2 : start + (i * (end - start)) / (count - 1),
+    )
+  }, [])
+
   return (
     <group>
       <ambientLight intensity={0.5} color={0xfff1de} />
 
       {/* Warm pools of light along the corridor */}
-      {[-20, -14, -8, -2, 4, 10].map((z) => (
+      {poolZs.map((z) => (
         <pointLight
           key={z}
           position={[0, 3.6, z]}

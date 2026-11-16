@@ -1,9 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PortraitInformationPanelProps } from './types'
+import { createPortraitDataURL } from './textures'
 
 /**
  * Portrait detail panel. Desktop: side panel. Mobile: bottom sheet.
- * Rendered outside the Canvas as regular HTML.
+ * Shows the photo, name, and years of office — everything else lives
+ * in the 3D scene. Rendered outside the Canvas as regular HTML.
  */
 export function PortraitInformationPanel({
   portrait,
@@ -12,6 +14,14 @@ export function PortraitInformationPanel({
   onClose,
 }: PortraitInformationPanelProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
+  // Which image path has already failed (falls back to the placeholder).
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
+
+  // Placeholder preview while no (working) image path is available.
+  const placeholder = useMemo(
+    () => (portrait ? createPortraitDataURL(portrait) : ''),
+    [portrait],
+  )
 
   useEffect(() => {
     if (portrait) closeRef.current?.focus()
@@ -30,6 +40,9 @@ export function PortraitInformationPanel({
   }, [portrait, onClose])
 
   if (!portrait) return null
+
+  const src =
+    portrait.imagePath && failedSrc !== portrait.imagePath ? portrait.imagePath : placeholder
 
   return (
     <>
@@ -56,11 +69,12 @@ export function PortraitInformationPanel({
         </header>
 
         <div className="gr-panel-body">
-          <div className="gr-meta">
-            <span className="gr-meta-label">Position</span>
-            <span className="gr-meta-value">{portrait.position}</span>
-          </div>
-          {portrait.description && <p className="gr-desc">{portrait.description}</p>}
+          <img
+            className="gr-portrait"
+            src={src}
+            alt={portrait.name}
+            onError={() => setFailedSrc(portrait.imagePath ?? null)}
+          />
           <div className="gr-index">
             Portrait {index + 1} of {total}
           </div>

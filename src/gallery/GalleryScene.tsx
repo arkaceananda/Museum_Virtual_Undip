@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
 import type { Portrait } from './types'
-import { EYE_HEIGHT, START_Z } from './layout'
+import { CORRIDOR_LENGTH, EYE_HEIGHT, START_Z } from './layout'
 import { PORTRAITS } from './data/portraits'
 import { GalleryEnvironment } from './GalleryEnvironment'
 import { GalleryLighting } from './GalleryLighting'
@@ -74,7 +74,7 @@ export function GalleryScene() {
         onPointerMissed={() => setSelectedId(null)}
       >
         <color attach="background" args={['#14100c']} />
-        <fog attach="fog" args={['#14100c', 26, 60]} />
+        <fog attach="fog" args={['#14100c', 26, Math.round(CORRIDOR_LENGTH + 24)]} />
         <PerspectiveCamera
           makeDefault
           position={[0, EYE_HEIGHT, START_Z]}

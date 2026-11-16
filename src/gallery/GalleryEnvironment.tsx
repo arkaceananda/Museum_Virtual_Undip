@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
-import { CORRIDOR, FIRST_Z, SPACING } from './layout'
+import { CORRIDOR, PILASTER_ZS } from './layout'
 import { createFloorTexture, createPortraitTexture, createTitleTexture } from './textures'
 import { PORTRAITS } from './data/portraits'
 
@@ -24,12 +24,6 @@ export function GalleryEnvironment() {
   const length = CORRIDOR.zFront - CORRIDOR.zBack
   const centerZ = (CORRIDOR.zFront + CORRIDOR.zBack) / 2
   const wallHalf = CORRIDOR.halfWidth
-
-  // Pilasters sit between portraits for architectural rhythm.
-  const pilasterZs = useMemo(
-    () => Array.from({ length: 7 }, (_, i) => FIRST_Z - i * SPACING - SPACING / 2),
-    [],
-  )
 
   return (
     <group>
@@ -94,7 +88,7 @@ export function GalleryEnvironment() {
           </mesh>
 
           {/* Pilasters between portraits */}
-          {pilasterZs.map((z, i) => (
+          {PILASTER_ZS.map((z, i) => (
             <group key={i} position={[side * (wallHalf - 0.05), 0, z]}>
               <mesh position={[0, 2.05, 0]} receiveShadow>
                 <boxGeometry args={[0.1, 3.9, 0.4]} />

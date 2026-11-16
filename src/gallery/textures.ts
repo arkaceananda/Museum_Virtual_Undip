@@ -105,21 +105,17 @@ export function createLabelTexture(portrait: Portrait): THREE.CanvasTexture {
 
   ctx.fillStyle = '#2a2018'
   fitFont(ctx, portrait.name, 'Georgia, serif', 'bold', 'normal', 560, 52, 30)
-  ctx.fillText(portrait.name, 320, 82)
+  ctx.fillText(portrait.name, 320, 95)
 
   ctx.fillStyle = '#7c5c2c'
   fitFont(ctx, portrait.years, 'Georgia, serif', 'normal', 'italic', 560, 34, 22)
-  ctx.fillText(portrait.years, 320, 132)
-
-  ctx.fillStyle = '#4b4036'
-  fitFont(ctx, portrait.position, 'system-ui, sans-serif', '500', 'normal', 560, 28, 18)
-  ctx.fillText(portrait.position, 320, 180)
+  ctx.fillText(portrait.years, 320, 158)
 
   return toTexture(canvas)
 }
 
-/** Generated sepia portrait placeholder with a silhouette. */
-export function createPortraitTexture(portrait: Portrait): THREE.CanvasTexture {
+/** Draws the generated sepia portrait placeholder onto a canvas. */
+export function createPortraitCanvas(portrait: Portrait): HTMLCanvasElement {
   const [canvas, ctx] = makeCanvas(512, 640)
   const seed = hash(portrait.id)
   const hue = 24 + (seed % 16)
@@ -147,7 +143,17 @@ export function createPortraitTexture(portrait: Portrait): THREE.CanvasTexture {
   ctx.fillStyle = vignette
   ctx.fillRect(0, 0, 512, 640)
 
-  return toTexture(canvas)
+  return canvas
+}
+
+/** Generated sepia portrait placeholder with a silhouette. */
+export function createPortraitTexture(portrait: Portrait): THREE.CanvasTexture {
+  return toTexture(createPortraitCanvas(portrait))
+}
+
+/** Same placeholder as a data URL, for use in the HTML information panel. */
+export function createPortraitDataURL(portrait: Portrait): string {
+  return createPortraitCanvas(portrait).toDataURL('image/jpeg', 0.85)
 }
 
 /** End-of-corridor plaque with the museum title. */
