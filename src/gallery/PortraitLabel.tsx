@@ -1,12 +1,13 @@
-import { useEffect, useMemo } from 'react'
 import type { PortraitLabelProps } from './types'
-import { createLabelTexture } from './textures'
+import { getCachedLabelTexture } from './assets'
 
-/** Ivory information label under a portrait: name, years, position. */
+/**
+ * Ivory information label under a portrait: name and years.
+ * The texture is shared from the module-level cache and must not be
+ * disposed on unmount — it is reused across visits.
+ */
 export function PortraitLabel({ portrait }: PortraitLabelProps) {
-  const texture = useMemo(() => createLabelTexture(portrait), [portrait])
-
-  useEffect(() => () => texture.dispose(), [texture])
+  const texture = getCachedLabelTexture(portrait)
 
   return (
     <mesh position={[0, -1.32, -0.05]}>

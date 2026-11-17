@@ -1,16 +1,15 @@
 import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { FirstPersonControlsProps } from './types'
+import { forwardAlongCorridor, stepAlongCorridor } from './movement'
 import {
   DRAG_SENSITIVITY,
   DRAG_THRESHOLD,
   EYE_HEIGHT,
   LOOK_SENSITIVITY,
-  MOVE_MAX_Z,
-  MOVE_MIN_Z,
+  MOVE_BOUNDS,
   PITCH_LIMIT,
   START_Z,
-  WALK_SPEED,
 } from './layout'
 
 const FORWARD_KEYS = new Set(['KeyW', 'ArrowUp'])
@@ -19,9 +18,14 @@ const BACKWARD_KEYS = new Set(['KeyS', 'ArrowDown'])
 /**
  * Constrained first-person controls (renders no DOM of its own):
  * - Desktop: click empty space to lock the mouse, move the mouse to look,
- *   W/S or arrows to walk along the corridor axis only, ESC to release.
+ *   W/S or arrows to walk, ESC to release.
  * - Touch: drag anywhere on the scene to look around.
- * Movement is clamped to the corridor; pitch is clamped to a comfortable range.
+ *
+ * Walking is camera-relative (see movement.ts): W moves where the camera
+ * looks, projected onto the corridor axis — turning around reverses it.
+ * Input stays clamped to the corridor; pitch is clamped to a comfortable
+ * range. Each frame it publishes position/yaw to `playerRef`, the single
+ * state the minimap reads.
  */
 export function FirstPersonControls({
   resetSignal,
@@ -29,6 +33,7 @@ export function FirstPersonControls({
   hoveredRef,
   panelOpenRef,
   draggedRef,
+  playerRef,
 }: FirstPersonControlsProps) {
   const { camera, gl } = useThree()
   const keys = useRef(new Set<string>())
@@ -134,18 +139,30 @@ export function FirstPersonControls({
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05)
 
-    let direction = 0
-    if (Array.from(keys.current).some((code) => FORWARD_KEYS.has(code))) direction -= 1
-    if (Array.from(keys.current).some((code) => BACKWARD_KEYS.has(code))) direction += 1
-    direction += moveInputRef.current
-    direction = Math.max(-1, Math.min(1, direction))
+    // Combined input: keyboard (+1 for W/↑, -1 for S/↓) plus the mobile
+    // joystick, which uses the same "forward = +1" convention.
+    let input = 0
+    for (const code of keys.current) {
+      if (FORWARD_KEYS.has(code)) input += 1
+      else if (BACKWARD_KEYS.has(code)) input -= 1
+    }
+    input += moveInputRef.current
+    input = Math.max(-1, Math.min(1, input))
 
-    // Longitudinal axis only (Z), clamped inside the corridor.
-    z.current = Math.max(MOVE_MIN_Z, Math.min(MOVE_MAX_Z, z.current + direction * WALK_SPEED * dt))
+    // Camera-relative: W means "move where I am looking", projected onto
+    // the corridor axis (pitch excluded), clamped to the walkable bounds.
+    const forwardFactor = forwardAlongCorridor(camera)
+    z.current = stepAlongCorridor(z.current, input, forwardFactor, dt, MOVE_BOUNDS)
 
     camera.position.set(0, EYE_HEIGHT, z.current)
     // 'YXZ' order keeps yaw/pitch intuitive for first-person look.
     camera.rotation.set(pitch.current, yaw.current, 0, 'YXZ')
+
+    // Publish shared state for the minimap — mutated in place, no re-render.
+    const state = playerRef.current
+    state.position.z = z.current
+    state.yaw = yaw.current
+    state.pitch = pitch.current
   })
 
   return null

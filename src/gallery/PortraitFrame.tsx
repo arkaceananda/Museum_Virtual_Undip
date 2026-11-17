@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import * as THREE from 'three'
+import type { Texture } from 'three'
 import type { PortraitFrameProps } from './types'
-import { createPortraitTexture } from './textures'
+import { getCachedPortraitTexture, loadImageTexture } from './assets'
 import { PortraitLabel } from './PortraitLabel'
 
 /**
  * An interactive portrait frame: bronze/gold frame, mat, portrait image,
  * wall sconce, and an information label. Hover highlights, click selects.
+ * All textures come from the shared cache (assets.ts): they are reused
+ * on revisit and never disposed here.
  */
 export function PortraitFrame({
   portrait,
@@ -18,37 +20,20 @@ export function PortraitFrame({
   onHover,
 }: PortraitFrameProps) {
   // Placeholder first; swap in a real image if the path resolves.
-  const placeholder = useMemo(() => createPortraitTexture(portrait), [portrait])
-  const [loaded, setLoaded] = useState<THREE.Texture | null>(null)
-
-  useEffect(() => () => placeholder.dispose(), [placeholder])
+  const placeholder = useMemo(() => getCachedPortraitTexture(portrait), [portrait])
+  const [loaded, setLoaded] = useState<Texture | null>(null)
 
   useEffect(() => {
     if (!portrait.imagePath) return
     let cancelled = false
-    const loader = new THREE.TextureLoader()
-    loader.load(
-      portrait.imagePath,
-      (texture) => {
-        if (cancelled) {
-          texture.dispose()
-          return
-        }
-        texture.colorSpace = THREE.SRGBColorSpace
-        setLoaded(texture)
-      },
-      undefined,
-      () => {
-        // Missing or broken image: keep the generated placeholder.
-        setLoaded(null)
-      },
-    )
+    // Cached per URL: revisits reuse the same texture without re-downloading.
+    loadImageTexture(portrait.imagePath).then((texture) => {
+      if (!cancelled) setLoaded(texture) // null → keep the placeholder
+    })
     return () => {
       cancelled = true
     }
   }, [portrait.imagePath])
-
-  useEffect(() => () => loaded?.dispose(), [loaded])
 
   const texture = loaded ?? placeholder
   const gold = (portrait.name.length + portrait.years.length) % 2 === 0

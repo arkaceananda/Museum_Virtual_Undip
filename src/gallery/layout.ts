@@ -1,3 +1,4 @@
+import type { CorridorBounds } from './types'
 import { PORTRAITS } from './data/portraits'
 
 /**
@@ -40,6 +41,9 @@ export const CORRIDOR = {
 export const CORRIDOR_LENGTH = CORRIDOR.zFront - CORRIDOR.zBack
 export const MOVE_MIN_Z = CORRIDOR.zBack + 1.5
 export const MOVE_MAX_Z = CORRIDOR.zFront - 1.5
+
+/** Walkable bounds along the corridor axis — used by movement + collision. */
+export const MOVE_BOUNDS: CorridorBounds = { minZ: MOVE_MIN_Z, maxZ: MOVE_MAX_Z }
 
 /** Decorative pilasters: between portrait slots, plus one before the end wall. */
 export const PILASTER_ZS: number[] = (() => {

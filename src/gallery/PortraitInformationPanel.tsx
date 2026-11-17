@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { PortraitInformationPanelProps } from './types'
-import { createPortraitDataURL } from './textures'
+import { getCachedPortraitDataURL } from './assets'
 
 /**
  * Portrait detail panel. Desktop: side panel. Mobile: bottom sheet.
@@ -17,11 +17,9 @@ export function PortraitInformationPanel({
   // Which image path has already failed (falls back to the placeholder).
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
 
-  // Placeholder preview while no (working) image path is available.
-  const placeholder = useMemo(
-    () => (portrait ? createPortraitDataURL(portrait) : ''),
-    [portrait],
-  )
+  // Placeholder preview while no (working) image path is available
+  // (cached module-level — shared across opens of the panel).
+  const placeholder = portrait ? getCachedPortraitDataURL(portrait) : ''
 
   useEffect(() => {
     if (portrait) closeRef.current?.focus()

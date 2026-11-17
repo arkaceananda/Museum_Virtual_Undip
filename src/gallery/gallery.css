@@ -67,6 +67,96 @@
 }
 
 /* ============================================================
+   Minimap — top-down corridor map (upper left)
+   ============================================================ */
+.gr-minimap-dock {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  left: max(14px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.gr-minimap {
+  pointer-events: auto;
+  padding: 7px;
+  background: rgba(20, 16, 12, 0.72);
+  border: 1px solid rgba(212, 175, 110, 0.3);
+  border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.gr-minimap svg {
+  display: block;
+  width: 96px;
+  height: 176px;
+}
+
+.gr-minimap-toggle {
+  display: none; /* Desktop: the minimap is always visible, no toggle. */
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  background: rgba(24, 19, 14, 0.82);
+  border: 1px solid rgba(212, 175, 110, 0.45);
+  border-radius: 4px;
+  color: #ecd9b0;
+  pointer-events: auto;
+}
+
+.gr-root.is-mobile .gr-minimap-toggle {
+  display: grid;
+}
+
+/* Mobile: sit below the Back button so nothing overlaps. */
+.gr-root.is-mobile .gr-minimap-dock {
+  top: calc(max(14px, env(safe-area-inset-top)) + 52px);
+}
+
+.gr-root.is-mobile .gr-minimap svg {
+  width: 80px;
+  height: 148px;
+}
+
+/* SVG parts */
+.gr-mm-floor {
+  fill: rgba(236, 228, 214, 0.06);
+  stroke: rgba(212, 175, 110, 0.55);
+  stroke-width: 1.5;
+}
+
+.gr-mm-center {
+  stroke: rgba(236, 228, 214, 0.18);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.gr-mm-entrance {
+  stroke: #d4af37;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.gr-mm-tick {
+  stroke: rgba(212, 175, 110, 0.85);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.gr-mm-player circle {
+  fill: rgba(212, 175, 110, 0.3);
+}
+
+.gr-mm-player path {
+  fill: #f2d98c;
+  stroke: rgba(20, 16, 12, 0.9);
+  stroke-width: 1;
+}
+
+/* ============================================================
    Information panel — desktop side panel
    ============================================================ */
 .gr-scrim {

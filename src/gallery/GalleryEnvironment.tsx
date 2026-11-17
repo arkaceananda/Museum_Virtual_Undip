@@ -1,25 +1,18 @@
-import { useMemo } from 'react'
-import * as THREE from 'three'
 import { CORRIDOR, PILASTER_ZS } from './layout'
-import { createFloorTexture, createPortraitTexture, createTitleTexture } from './textures'
+import { getCachedFloorTexture, getCachedPlaqueTexture, getCachedTitleTexture } from './assets'
 import { PORTRAITS } from './data/portraits'
 
 /**
  * The museum corridor: floor, walls, ceiling, moldings, pilasters,
  * entrance doors, and the end-of-corridor plaque.
  * Contains only three.js elements — all HTML UI lives outside the Canvas.
+ * Textures come from the shared module-level cache (see assets.ts), so
+ * revisiting the gallery reuses them instead of regenerating GPU data.
  */
 export function GalleryEnvironment() {
-  const floorTexture = useMemo(() => {
-    const texture = createFloorTexture()
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(4, 12)
-    return texture
-  }, [])
-
-  const titleTexture = useMemo(() => createTitleTexture(), [])
-  const plaqueArtTexture = useMemo(() => createPortraitTexture(PORTRAITS[0]), [])
+  const floorTexture = getCachedFloorTexture()
+  const titleTexture = getCachedTitleTexture()
+  const plaqueArtTexture = getCachedPlaqueTexture(PORTRAITS[0])
 
   const length = CORRIDOR.zFront - CORRIDOR.zBack
   const centerZ = (CORRIDOR.zFront + CORRIDOR.zBack) / 2
