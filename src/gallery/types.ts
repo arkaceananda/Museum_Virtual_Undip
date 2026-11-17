@@ -61,15 +61,34 @@ export interface PlayerState {
 
 export type PlayerStateRef = RefObject<PlayerState>
 
-/** Walkable bounds along the corridor's longitudinal (Z) axis. */
+/** Walkable bounds along one world axis, in meters. */
+export interface AxisBounds {
+  min: number
+  max: number
+}
+
+/** Walkable bounds of the corridor (a box the player can never leave). */
 export interface CorridorBounds {
-  minZ: number
-  maxZ: number
+  /** X axis — between the left and right walls. */
+  lateral: AxisBounds
+  /** Z axis — between the entrance and the end wall. */
+  longitudinal: AxisBounds
+}
+
+/**
+ * Combined movement input, -1..1 per axis (keyboard or virtual joystick).
+ * Both desktop and mobile feed this same structure into one code path.
+ */
+export interface MoveInput {
+  /** -1 = left, +1 = screen right. */
+  x: number
+  /** -1 = backward, +1 = forward (where the camera looks). */
+  y: number
 }
 
 export interface FirstPersonControlsProps {
   resetSignal: number
-  moveInputRef: RefObject<number>
+  moveInputRef: RefObject<MoveInput>
   hoveredRef: RefObject<string | null>
   panelOpenRef: RefObject<boolean>
   draggedRef: RefObject<boolean>
@@ -91,7 +110,7 @@ export interface MinimapToggleProps {
 }
 
 export interface MobileControlsProps {
-  moveInputRef: RefObject<number>
+  moveInputRef: RefObject<MoveInput>
   visible: boolean
   onReset: () => void
   onBack?: () => void

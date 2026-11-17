@@ -10,6 +10,10 @@ export function DesktopHints() {
         <kbd>S</kbd>
         <kbd>↓</kbd> backward
       </span>
+      <span>
+        <kbd>A</kbd>
+        <kbd>D</kbd> left / right
+      </span>
       <span>mouse to look</span>
       <span>click a portrait</span>
       <span>

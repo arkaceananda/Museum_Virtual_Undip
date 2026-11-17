@@ -41,9 +41,16 @@ export const CORRIDOR = {
 export const CORRIDOR_LENGTH = CORRIDOR.zFront - CORRIDOR.zBack
 export const MOVE_MIN_Z = CORRIDOR.zBack + 1.5
 export const MOVE_MAX_Z = CORRIDOR.zFront - 1.5
+/** Lateral (X) bounds — keeps the player a comfortable step off the walls. */
+const LATERAL_MARGIN = 1
+export const MOVE_MIN_X = -CORRIDOR.halfWidth + LATERAL_MARGIN
+export const MOVE_MAX_X = CORRIDOR.halfWidth - LATERAL_MARGIN
 
-/** Walkable bounds along the corridor axis — used by movement + collision. */
-export const MOVE_BOUNDS: CorridorBounds = { minZ: MOVE_MIN_Z, maxZ: MOVE_MAX_Z }
+/** Walkable box — used by movement + collision on both axes. */
+export const MOVE_BOUNDS: CorridorBounds = {
+  lateral: { min: MOVE_MIN_X, max: MOVE_MAX_X },
+  longitudinal: { min: MOVE_MIN_Z, max: MOVE_MAX_Z },
+}
 
 /** Decorative pilasters: between portrait slots, plus one before the end wall. */
 export const PILASTER_ZS: number[] = (() => {

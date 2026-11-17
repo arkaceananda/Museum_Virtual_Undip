@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
-import type { PlayerState, Portrait } from './types'
+import type { MoveInput, PlayerState, Portrait } from './types'
 import { CORRIDOR_LENGTH, EYE_HEIGHT, START_Z } from './layout'
 import { PORTRAITS } from './data/portraits'
 import { GalleryEnvironment } from './GalleryEnvironment'
@@ -38,7 +38,7 @@ export function GalleryScene() {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [resetSignal, setResetSignal] = useState(0)
 
-  const moveInputRef = useRef(0)
+  const moveInputRef = useRef<MoveInput>({ x: 0, y: 0 })
   const hoveredRef = useRef<string | null>(null)
   const panelOpenRef = useRef(false)
   const draggedRef = useRef(false)

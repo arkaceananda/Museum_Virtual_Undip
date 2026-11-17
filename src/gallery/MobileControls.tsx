@@ -4,8 +4,9 @@ import type { MobileControlsProps } from './types'
 const JOYSTICK_RADIUS = 44
 
 /**
- * Touch controls (HTML, outside the Canvas): virtual joystick for movement,
- * a clearly visible back button, and a reset-view button.
+ * Touch controls (HTML, outside the Canvas): virtual joystick for movement
+ * (both axes — forward/backward and left/right strafe), a clearly visible
+ * back button, and a reset-view button.
  * The joystick hides while the information panel is open so it never
  * obstructs portrait information.
  */
@@ -28,12 +29,15 @@ export function MobileControls({ moveInputRef, visible, onReset, onBack }: Mobil
       dy = (dy / length) * JOYSTICK_RADIUS
     }
     setKnob({ x: dx, y: dy })
-    moveInputRef.current = Math.max(-1, Math.min(1, -dy / JOYSTICK_RADIUS))
+    // Same convention as the keyboard: +y = forward, +x = screen right.
+    moveInputRef.current.x = Math.max(-1, Math.min(1, dx / JOYSTICK_RADIUS))
+    moveInputRef.current.y = Math.max(-1, Math.min(1, -dy / JOYSTICK_RADIUS))
   }
 
   const end = () => {
     activeRef.current = false
-    moveInputRef.current = 0
+    moveInputRef.current.x = 0
+    moveInputRef.current.y = 0
     setKnob({ x: 0, y: 0 })
   }
 
