@@ -1,11 +1,91 @@
 import type { RefObject } from 'react'
+import type { Founder, HistoryExhibit } from './data/exhibits'
 
+export type ExhibitType = 'founder' | 'history' | 'miniature-map' | 'podium' | 'prasasti'
+
+export interface SelectedExhibit {
+  type: ExhibitType
+  data: Founder | HistoryExhibit | {
+    id: string
+    title: string
+    subtitle: string
+    description: string
+    highlights?: string[]
+  }
+}
+
+export interface FounderFrameProps {
+  founder: Founder
+  index: number
+  position: [number, number, number]
+  rotationY: number
+  isSelected: boolean
+  isHovered: boolean
+  onSelect: (founder: Founder) => void
+  onHover: (id: string | null) => void
+}
+
+export interface HistoryExhibitPanelProps {
+  exhibit: HistoryExhibit
+  index: number
+  position: [number, number, number]
+  rotationY: number
+  isSelected: boolean
+  isHovered: boolean
+  onSelect: (exhibit: HistoryExhibit) => void
+  onHover: (id: string | null) => void
+}
+
+export interface MiniatureMapProps {
+  position: [number, number, number]
+  isSelected: boolean
+  isHovered: boolean
+  onSelect: () => void
+  onHover: (id: string | null) => void
+}
+
+export interface CeremonialPodiumProps {
+  position: [number, number, number]
+  isSelected: boolean
+  isHovered: boolean
+  onSelect: () => void
+  onHover: (id: string | null) => void
+  onSelectPrasasti?: () => void
+}
+
+export interface StatueProps {
+  position: [number, number, number]
+  rotationY?: number
+  isSelected?: boolean
+  isHovered?: boolean
+  onSelect?: () => void
+  onHover?: (id: string | null) => void
+}
+
+export interface FirstPersonControlsProps {
+  resetSignal: number
+  targetPosition?: [number, number, number] | null
+  moveInputRef: RefObject<{ forward: number; strafe: number }>
+  hoveredRef: RefObject<string | null>
+  panelOpenRef: RefObject<boolean>
+  draggedRef: RefObject<boolean>
+  onProximityChange?: (isNearDirectory: boolean) => void
+}
+
+export type SectionType = 'entrance' | 'founders' | 'map' | 'podium' | 'history' | 'prasasti'
+
+export interface MobileControlsProps {
+  moveInputRef: RefObject<{ forward: number; strafe: number }>
+  visible: boolean
+  onReset: () => void
+  onTeleport: (section: SectionType) => void
+}
+
+/** Legacy Types for backward compatibility */
 export interface Portrait {
   id: string
   name: string
-  /** Year of office / relevant years, e.g. "1945–1967". */
   years: string
-  /** Optional local image path. Falls back to a generated placeholder when missing. */
   imagePath?: string
 }
 
@@ -29,25 +109,6 @@ export interface GalleryWallsProps {
   hoveredId: string | null
   onSelect: (id: string) => void
   onHover: (id: string | null) => void
-}
-
-export interface GalleryLightingProps {
-  castShadows: boolean
-}
-
-export interface FirstPersonControlsProps {
-  resetSignal: number
-  moveInputRef: RefObject<number>
-  hoveredRef: RefObject<string | null>
-  panelOpenRef: RefObject<boolean>
-  draggedRef: RefObject<boolean>
-}
-
-export interface MobileControlsProps {
-  moveInputRef: RefObject<number>
-  visible: boolean
-  onReset: () => void
-  onBack?: () => void
 }
 
 export interface PortraitInformationPanelProps {

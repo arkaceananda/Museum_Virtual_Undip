@@ -21,8 +21,6 @@ export function PortraitFrame({
   const placeholder = useMemo(() => createPortraitTexture(portrait), [portrait])
   const [loaded, setLoaded] = useState<THREE.Texture | null>(null)
 
-  useEffect(() => () => placeholder.dispose(), [placeholder])
-
   useEffect(() => {
     if (!portrait.imagePath) return
     let cancelled = false
@@ -30,10 +28,7 @@ export function PortraitFrame({
     loader.load(
       portrait.imagePath,
       (texture) => {
-        if (cancelled) {
-          texture.dispose()
-          return
-        }
+        if (cancelled) return
         texture.colorSpace = THREE.SRGBColorSpace
         setLoaded(texture)
       },
@@ -47,8 +42,6 @@ export function PortraitFrame({
       cancelled = true
     }
   }, [portrait.imagePath])
-
-  useEffect(() => () => loaded?.dispose(), [loaded])
 
   const texture = loaded ?? placeholder
   const gold = (portrait.name.length + portrait.years.length) % 2 === 0

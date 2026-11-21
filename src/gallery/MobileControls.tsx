@@ -1,15 +1,20 @@
 import { useRef, useState } from 'react'
 import type { MobileControlsProps } from './types'
 
-const JOYSTICK_RADIUS = 44
+const JOYSTICK_RADIUS = 48
 
 /**
- * Touch controls (HTML, outside the Canvas): virtual joystick for movement,
- * a clearly visible back button, and a reset-view button.
- * The joystick hides while the information panel is open so it never
- * obstructs portrait information.
+ * Enhanced Touch Controls for Mobile:
+ * - 2D Virtual joystick for walking & strafing
+ * - Section navigation shortcuts
+ * - Reset view button
  */
-export function MobileControls({ moveInputRef, visible, onReset, onBack }: MobileControlsProps) {
+export function MobileControls({
+  moveInputRef,
+  visible,
+  onReset,
+  onTeleport,
+}: MobileControlsProps) {
   const padRef = useRef<HTMLDivElement>(null)
   const activeRef = useRef(false)
   const [knob, setKnob] = useState({ x: 0, y: 0 })
@@ -28,28 +33,57 @@ export function MobileControls({ moveInputRef, visible, onReset, onBack }: Mobil
       dy = (dy / length) * JOYSTICK_RADIUS
     }
     setKnob({ x: dx, y: dy })
-    moveInputRef.current = Math.max(-1, Math.min(1, -dy / JOYSTICK_RADIUS))
+    if (moveInputRef.current) {
+      moveInputRef.current.forward = Math.max(-1, Math.min(1, -dy / JOYSTICK_RADIUS))
+      moveInputRef.current.strafe = Math.max(-1, Math.min(1, dx / JOYSTICK_RADIUS))
+    }
   }
 
   const end = () => {
     activeRef.current = false
-    moveInputRef.current = 0
+    if (moveInputRef.current) {
+      moveInputRef.current.forward = 0
+      moveInputRef.current.strafe = 0
+    }
     setKnob({ x: 0, y: 0 })
   }
 
   return (
     <div className="gr-mobile">
-      <button type="button" className="gr-back" onClick={onBack ?? (() => window.history.back())}>
-        ← Back to map
-      </button>
-      <button type="button" className="gr-reset" onClick={onReset}>
-        Reset view
-      </button>
+      {/* Top Mobile Bar */}
+      <div className="gr-mobile-top">
+        <div className="gr-mobile-header">
+          <strong>Museum Undip</strong>
+        </div>
+        <button type="button" className="gr-reset" onClick={onReset}>
+          Reset Sudut
+        </button>
+      </div>
 
+      {/* Quick Section Pills Bar */}
+      <div className="gr-mobile-sections">
+        <button type="button" onClick={() => onTeleport('founders')}>
+          👥 Pendiri & Rektorat
+        </button>
+        <button type="button" onClick={() => onTeleport('map')}>
+          🗺️ Maket
+        </button>
+        <button type="button" onClick={() => onTeleport('podium')}>
+          🎙️ Podium
+        </button>
+        <button type="button" onClick={() => onTeleport('history')}>
+          📜 Sejarah
+        </button>
+        <button type="button" onClick={() => onTeleport('prasasti')}>
+          🏛️ Prasasti
+        </button>
+      </div>
+
+      {/* Touch Movement Joystick */}
       <div
         ref={padRef}
         className={`gr-joystick${visible ? '' : ' gr-hidden'}`}
-        aria-label="Movement joystick"
+        aria-label="Joystick Pergerakan"
         onPointerDown={(event) => {
           activeRef.current = true
           event.currentTarget.setPointerCapture(event.pointerId)
@@ -63,12 +97,14 @@ export function MobileControls({ moveInputRef, visible, onReset, onBack }: Mobil
       >
         <div
           className="gr-knob"
-          style={{ transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))` }}
+          style={{
+            transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))`,
+          }}
         />
-        <span className="gr-joy-label">Move</span>
+        <span className="gr-joy-label">Gerak</span>
       </div>
 
-      <p className="gr-mobile-hint">Drag to look around · Tap a portrait for details</p>
+      <p className="gr-mobile-hint">Geser layar untuk melihat · Ketuk objek untuk info</p>
     </div>
   )
 }

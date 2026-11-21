@@ -2,45 +2,73 @@ import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { FirstPersonControlsProps } from './types'
 import {
+  BOUNDS,
+  DIRECTORY_BOARD_POS,
+  DIRECTORY_PROXIMITY_RADIUS,
   DRAG_SENSITIVITY,
   DRAG_THRESHOLD,
   EYE_HEIGHT,
   LOOK_SENSITIVITY,
-  MOVE_MAX_Z,
-  MOVE_MIN_Z,
   PITCH_LIMIT,
-  START_Z,
+  START_POSITION,
   WALK_SPEED,
 } from './layout'
 
 const FORWARD_KEYS = new Set(['KeyW', 'ArrowUp'])
 const BACKWARD_KEYS = new Set(['KeyS', 'ArrowDown'])
+const LEFT_KEYS = new Set(['KeyA', 'ArrowLeft'])
+const RIGHT_KEYS = new Set(['KeyD', 'ArrowRight'])
 
 /**
- * Constrained first-person controls (renders no DOM of its own):
- * - Desktop: click empty space to lock the mouse, move the mouse to look,
- *   W/S or arrows to walk along the corridor axis only, ESC to release.
- * - Touch: drag anywhere on the scene to look around.
- * Movement is clamped to the corridor; pitch is clamped to a comfortable range.
+ * 2D First-Person Museum Controls:
+ * - Desktop: Click empty space to lock pointer, look around with mouse,
+ *   WASD or arrows to walk freely (forward, backward, left strafe, right strafe), ESC to release.
+ * - Touch: Drag to look around; virtual joystick to move.
+ * - Quick Section Navigation: Smooth glide when a section target is triggered.
  */
 export function FirstPersonControls({
   resetSignal,
+  targetPosition,
   moveInputRef,
   hoveredRef,
   panelOpenRef,
   draggedRef,
+  onProximityChange,
 }: FirstPersonControlsProps) {
   const { camera, gl } = useThree()
   const keys = useRef(new Set<string>())
   const yaw = useRef(0)
   const pitch = useRef(0)
-  const z = useRef(START_Z)
+  const pos = useRef<[number, number, number]>([...START_POSITION])
   const drag = useRef<{ id: number; x: number; y: number } | null>(null)
+  const isNearDirectoryRef = useRef(false)
 
-  // Keyboard
+  // Keyboard Event Listeners
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (FORWARD_KEYS.has(event.code) || BACKWARD_KEYS.has(event.code)) {
+      // Toggle pointer lock on 'KeyN' / 'n'
+      if (event.code === 'KeyN' || event.key.toLowerCase() === 'n') {
+        event.preventDefault()
+        const element = gl.domElement
+        if (document.pointerLockElement === element) {
+          document.exitPointerLock()
+        } else {
+          try {
+            const res = element.requestPointerLock() as unknown as Promise<void> | undefined
+            if (res && typeof res.catch === 'function') res.catch(() => {})
+          } catch {
+            // pointer lock error handle
+          }
+        }
+        return
+      }
+
+      if (
+        FORWARD_KEYS.has(event.code) ||
+        BACKWARD_KEYS.has(event.code) ||
+        LEFT_KEYS.has(event.code) ||
+        RIGHT_KEYS.has(event.code)
+      ) {
         event.preventDefault()
         keys.current.add(event.code)
       }
@@ -56,7 +84,7 @@ export function FirstPersonControls({
     }
   }, [])
 
-  // Pointer look (pointer lock on desktop, drag on touch/edge cases)
+  // Pointer Look (Pointer lock on desktop, drag on touch)
   useEffect(() => {
     const element = gl.domElement
 
@@ -93,7 +121,6 @@ export function FirstPersonControls({
     }
 
     const onClick = () => {
-      // Only lock when clicking empty space (not a portrait) and no panel is open.
       if (panelOpenRef.current || hoveredRef.current) return
       if (document.pointerLockElement === element) return
       if (!window.matchMedia('(pointer: fine)').matches) return
@@ -101,7 +128,7 @@ export function FirstPersonControls({
         const result = element.requestPointerLock() as unknown as Promise<void> | undefined
         if (result && typeof result.catch === 'function') result.catch(() => {})
       } catch {
-        // Pointer lock may be unavailable; drag-look still works.
+        // Pointer lock fallback to drag
       }
     }
 
@@ -117,35 +144,81 @@ export function FirstPersonControls({
       element.removeEventListener('pointercancel', onPointerUp)
       element.removeEventListener('click', onClick)
     }
-  }, [camera, gl, panelOpenRef, hoveredRef, draggedRef])
+  }, [gl, panelOpenRef, hoveredRef, draggedRef])
 
-  // Reset view
+  // Reset View Signal
   useEffect(() => {
     if (resetSignal === 0) return
     yaw.current = 0
     pitch.current = 0
-    z.current = START_Z
+    pos.current = [...START_POSITION]
     keys.current.clear()
-    moveInputRef.current = 0
+    if (moveInputRef.current) {
+      moveInputRef.current.forward = 0
+      moveInputRef.current.strafe = 0
+    }
     drag.current = null
     if (document.pointerLockElement) document.exitPointerLock()
   }, [resetSignal, moveInputRef])
 
+  // Teleport / Smooth glide to target position
+  useEffect(() => {
+    if (!targetPosition) return
+    pos.current = [targetPosition[0], targetPosition[1], targetPosition[2]]
+    // If target is left wing, yaw towards left; if right, yaw towards right
+    if (targetPosition[0] < -2) yaw.current = -Math.PI / 2
+    else if (targetPosition[0] > 2) yaw.current = Math.PI / 2
+    else yaw.current = 0
+    pitch.current = 0
+  }, [targetPosition])
+
+  // Frame Loop Movement Update
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05)
 
-    let direction = 0
-    if (Array.from(keys.current).some((code) => FORWARD_KEYS.has(code))) direction -= 1
-    if (Array.from(keys.current).some((code) => BACKWARD_KEYS.has(code))) direction += 1
-    direction += moveInputRef.current
-    direction = Math.max(-1, Math.min(1, direction))
+    // Calculate movement vector in camera local space
+    let forward = 0
+    let strafe = 0
 
-    // Longitudinal axis only (Z), clamped inside the corridor.
-    z.current = Math.max(MOVE_MIN_Z, Math.min(MOVE_MAX_Z, z.current + direction * WALK_SPEED * dt))
+    if (Array.from(keys.current).some((c) => FORWARD_KEYS.has(c))) forward += 1
+    if (Array.from(keys.current).some((c) => BACKWARD_KEYS.has(c))) forward -= 1
+    if (Array.from(keys.current).some((c) => RIGHT_KEYS.has(c))) strafe += 1
+    if (Array.from(keys.current).some((c) => LEFT_KEYS.has(c))) strafe -= 1
 
-    camera.position.set(0, EYE_HEIGHT, z.current)
-    // 'YXZ' order keeps yaw/pitch intuitive for first-person look.
+    if (moveInputRef.current) {
+      forward += moveInputRef.current.forward
+      strafe += moveInputRef.current.strafe
+    }
+
+    forward = Math.max(-1, Math.min(1, forward))
+    strafe = Math.max(-1, Math.min(1, strafe))
+
+    if (forward !== 0 || strafe !== 0) {
+      // Rotate movement vector by camera yaw
+      const cosY = Math.cos(yaw.current)
+      const sinY = Math.sin(yaw.current)
+
+      // Forward is along -Z in local space, Strafe is along +X in local space
+      const dx = (strafe * cosY - forward * sinY) * WALK_SPEED * dt
+      const dz = (-forward * cosY - strafe * sinY) * WALK_SPEED * dt
+
+      pos.current[0] = Math.max(BOUNDS.minX, Math.min(BOUNDS.maxX, pos.current[0] + dx))
+      pos.current[2] = Math.max(BOUNDS.minZ, Math.min(BOUNDS.maxZ, pos.current[2] + dz))
+    }
+
+    camera.position.set(pos.current[0], EYE_HEIGHT, pos.current[2])
     camera.rotation.set(pitch.current, yaw.current, 0, 'YXZ')
+
+    // Proximity check to the Directory Board
+    const distToDirectory = Math.hypot(
+      pos.current[0] - DIRECTORY_BOARD_POS[0],
+      pos.current[2] - DIRECTORY_BOARD_POS[2],
+    )
+    const isNear = distToDirectory <= DIRECTORY_PROXIMITY_RADIUS
+    if (isNear !== isNearDirectoryRef.current) {
+      isNearDirectoryRef.current = isNear
+      onProximityChange?.(isNear)
+    }
   })
 
   return null

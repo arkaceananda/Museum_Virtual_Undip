@@ -1,14 +1,15 @@
 /* ============================================================
-   Gallery root
+   Museum Virtual Undip - Master Gallery Styling
+   Colors: Navy Blue (#0B1D3A), Gold (#D4AF37), Ivory (#F7F4EB), Heritage Brown (#3D2516)
    ============================================================ */
 .gr-root {
   position: fixed;
   inset: 0;
-  background: #14100c;
+  background: #081220;
   overflow: hidden;
   overscroll-behavior: none;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  color: #ece4d6;
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  color: #f7f4eb;
 }
 
 .gr-root canvas {
@@ -22,6 +23,8 @@
 .gr-root button {
   font-family: inherit;
   cursor: pointer;
+  border: none;
+  outline: none;
 }
 
 .gr-root button:focus-visible {
@@ -30,75 +33,357 @@
 }
 
 /* ============================================================
-   Desktop keyboard hints
+   Desktop Bottom Keyboard Hints
    ============================================================ */
 .gr-hints {
   position: absolute;
   left: 50%;
-  bottom: 18px;
+  bottom: 22px;
   transform: translateX(-50%);
   display: flex;
-  gap: 16px;
-  padding: 8px 18px;
-  background: rgba(20, 16, 12, 0.72);
-  border: 1px solid rgba(212, 175, 110, 0.28);
-  border-radius: 3px;
-  backdrop-filter: blur(6px);
-  font-size: 12px;
+  gap: 18px;
+  padding: 9px 22px;
+  background: rgba(11, 29, 58, 0.82);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  font-size: 12.5px;
   letter-spacing: 0.02em;
-  color: #d9cfbd;
+  color: #e6dfd1;
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
 
 .gr-hints kbd {
   font: inherit;
   font-weight: 600;
-  color: #e8c98a;
-  border: 1px solid rgba(212, 175, 110, 0.4);
-  border-radius: 3px;
-  padding: 1px 5px;
-  margin-right: 3px;
+  color: #ffd966;
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-right: 2px;
 }
 
+<<<<<<< HEAD
 .gr-hints kbd + kbd {
-  margin-right: 6px;
+=======
+.gr-hints kbd+kbd {
+>>>>>>> origin/main
+  margin-right: 4px;
 }
 
 /* ============================================================
-   Information panel — desktop side panel
+   Interactive Wayfinding Prompt: "Mau kemana??"
+   (Appears ONLY when the user approaches the Directory Board)
+   ============================================================ */
+.gr-wayfind-overlay {
+  position: absolute;
+  top: 26px;
+  left: 28px;
+  z-index: 25;
+  animation: gr-wayfind-pop 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gr-wayfind-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.gr-wayfind-card {
+  width: min(390px, 90vw);
+  background: linear-gradient(165deg, rgba(14, 34, 68, 0.96), rgba(9, 21, 43, 0.98));
+  border: 1.5px solid rgba(212, 175, 55, 0.55);
+  border-radius: 10px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+.gr-wayfind-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.gr-wayfind-tag span {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ffd966;
+}
+
+.gr-wayfind-close {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 50%;
+  color: #ffd966;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.gr-wayfind-close:hover {
+  background: rgba(212, 175, 55, 0.3);
+  transform: scale(1.1);
+}
+
+.gr-wayfind-body {
+  padding: 16px 18px 12px;
+}
+
+.gr-wayfind-question {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffe07b;
+  letter-spacing: -0.01em;
+}
+
+.gr-wayfind-subtitle {
+  margin: 4px 0 14px;
+  font-size: 12.5px;
+  color: #d8d0c0;
+  line-height: 1.4;
+}
+
+.gr-wayfind-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gr-wayfind-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 6px;
+  text-align: left;
+  transition: all 0.18s ease;
+}
+
+.gr-wayfind-btn:hover {
+  background: rgba(212, 175, 55, 0.22);
+  border-color: #d4af37;
+  transform: translateX(4px);
+}
+
+.gr-wayfind-gold {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.45);
+}
+
+.gr-wayfind-gold:hover {
+  background: rgba(212, 175, 55, 0.3);
+}
+
+.gr-wayfind-subtle {
+  opacity: 0.88;
+}
+
+.gr-btn-icon {
+  font-size: 20px;
+  flex: none;
+}
+
+.gr-btn-text strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #f7f4eb;
+}
+
+.gr-btn-text small {
+  display: block;
+  font-size: 11px;
+  color: #c9bea9;
+}
+
+.gr-wayfind-foot {
+  padding: 8px 18px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.gr-wayfind-hint {
+  font-size: 11px;
+  color: #ad9e88;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   Exhibition Panel: Dual Mode (Sidebar on Right vs Expanded Center Modal)
    ============================================================ */
 .gr-scrim {
   display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 15, 32, 0.68);
+  backdrop-filter: blur(6px);
+  z-index: 28;
+<<<<<<< HEAD
 }
 
+.gr-scrim.gr-scrim-visible {
+  display: block;
+  animation: gr-fade-in 0.2s ease-out;
+}
+
+@keyframes gr-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Base Panel Styles */
 .gr-panel {
-  position: absolute;
-  top: 50%;
-  right: 26px;
-  transform: translateY(-50%);
-  width: min(380px, 32vw);
-  max-height: 82vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(160deg, rgba(26, 21, 16, 0.97), rgba(16, 13, 10, 0.97));
-  border: 1px solid rgba(212, 175, 110, 0.35);
-  border-radius: 4px;
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(8px);
+  background: linear-gradient(165deg, rgba(14, 34, 68, 0.98), rgba(9, 21, 43, 0.99));
+  border: 1.5px solid rgba(212, 175, 55, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 32px rgba(212, 175, 55, 0.16);
+  backdrop-filter: blur(14px);
   z-index: 30;
-  animation: gr-panel-in 0.22s ease-out;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes gr-panel-in {
+/* 1. Standard Mode: Classic Right Sidebar */
+.gr-panel-sidebar {
+  position: absolute;
+  top: 50%;
+  right: 28px;
+  transform: translateY(-50%);
+  width: min(400px, 32vw);
+  max-height: 85vh;
+  animation: gr-panel-side-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gr-panel-side-in {
   from {
     opacity: 0;
-    transform: translateY(-50%) translateX(14px);
+    transform: translateY(-50%) translateX(24px);
+=======
+}
+
+.gr-scrim.gr-scrim-visible {
+  display: block;
+  animation: gr-fade-in 0.2s ease-out;
+}
+
+@keyframes gr-fade-in {
+  from {
+    opacity: 0;
+>>>>>>> origin/main
   }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Base Panel Styles */
+.gr-panel {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(165deg, rgba(20, 48, 88, 0.98), rgba(14, 34, 66, 0.99));
+  border: 1.5px solid rgba(212, 175, 55, 0.55);
+  border-radius: 10px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8), 0 0 36px rgba(212, 175, 55, 0.22);
+  backdrop-filter: blur(16px);
+  z-index: 30;
+  overflow: hidden;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. Standard Mode: Classic Right Sidebar */
+.gr-panel-sidebar {
+  position: absolute;
+  top: 50%;
+  right: 28px;
+  transform: translateY(-50%);
+  width: min(420px, 34vw);
+  max-height: 85vh;
+  animation: gr-panel-side-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gr-panel-side-in {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(24px);
+  }
+
   to {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
+  }
+}
+
+<<<<<<< HEAD
+/* 2. Expanded Mode: Grand Centered Modal with Responsive Typography */
+=======
+/* 2. Expanded Mode: Grand Centered Modal with Split Layout
+   Left Column (Photo/Document): Full height, stays in place (fixed)
+   Right Column (Text): Smoothly scrollable with high contrast
+*/
+>>>>>>> origin/main
+.gr-panel-expanded {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+<<<<<<< HEAD
+  width: min(920px, 92vw);
+  max-height: 88vh;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.85), 0 0 45px rgba(212, 175, 55, 0.25);
+  animation: gr-panel-center-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+=======
+  width: min(1080px, 94vw);
+  height: min(800px, 88vh);
+  max-height: 90vh;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.88), 0 0 50px rgba(212, 175, 55, 0.28);
+  animation: gr-panel-center-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+>>>>>>> origin/main
+}
+
+@keyframes gr-panel-center-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -106,123 +391,640 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
-  padding: 22px 22px 16px;
-  border-bottom: 1px solid rgba(212, 175, 110, 0.22);
+  gap: 16px;
+<<<<<<< HEAD
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+=======
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+  flex: none;
+>>>>>>> origin/main
 }
 
 .gr-panel-title {
   min-width: 0;
 }
 
+.gr-badge {
+  display: inline-block;
+<<<<<<< HEAD
+  padding: 4px 10px;
+  margin-bottom: 8px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffd966;
+=======
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffd700;
+>>>>>>> origin/main
+}
+
 .gr-name {
   margin: 0;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.2;
-  color: #f3e8d2;
+<<<<<<< HEAD
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #f7f4eb;
+}
+
+.gr-panel-expanded .gr-name {
+  font-size: clamp(22px, 2.4vw, 28px);
+=======
+  font-size: clamp(20px, 2.2vw, 29px);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #ffffff;
+}
+
+.gr-panel-expanded .gr-name {
+  font-size: clamp(22px, 2.4vw, 30px);
+>>>>>>> origin/main
 }
 
 .gr-years {
   margin: 6px 0 0;
   font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
-  font-size: 14px;
-  color: #c8a86a;
+<<<<<<< HEAD
+  font-size: 13.5px;
+  color: #d4af37;
+}
+
+.gr-panel-expanded .gr-years {
+  font-size: clamp(13px, 1.4vw, 15.5px);
+=======
+  font-size: clamp(12.5px, 1.25vw, 15.5px);
+  color: #ffd966;
+}
+
+.gr-panel-expanded .gr-years {
+  font-size: clamp(13px, 1.35vw, 16px);
+>>>>>>> origin/main
+}
+
+.gr-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+/* Button Luas: Panah Kanan Pojok Atas & Kiri Pojok Bawah */
+.gr-btn-expand {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+<<<<<<< HEAD
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+=======
+  background: rgba(212, 175, 55, 0.16);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+>>>>>>> origin/main
+  border-radius: 6px;
+  color: #ffd966;
+  transition: all 0.18s ease;
+}
+
+.gr-btn-expand:hover {
+<<<<<<< HEAD
+  background: rgba(212, 175, 55, 0.3);
+=======
+  background: rgba(212, 175, 55, 0.35);
+>>>>>>> origin/main
+  transform: scale(1.08);
+}
+
+.gr-btn-expand.is-active {
+<<<<<<< HEAD
+  background: rgba(212, 175, 55, 0.28);
+  border-color: #d4af37;
+=======
+  background: rgba(212, 175, 55, 0.32);
+  border-color: #ffd700;
+>>>>>>> origin/main
 }
 
 .gr-close {
-  flex: none;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
-  background: rgba(212, 175, 110, 0.08);
-  border: 1px solid rgba(212, 175, 110, 0.4);
-  border-radius: 3px;
-  color: #ecd9b0;
+<<<<<<< HEAD
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+=======
+  background: rgba(212, 175, 55, 0.14);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+>>>>>>> origin/main
+  border-radius: 50%;
+  color: #ffd966;
   font-size: 22px;
   line-height: 1;
-  transition: background 0.15s ease;
+  transition: all 0.16s ease;
 }
 
 .gr-close:hover {
-  background: rgba(212, 175, 110, 0.2);
+<<<<<<< HEAD
+  background: rgba(212, 175, 55, 0.3);
+=======
+  background: rgba(212, 175, 55, 0.35);
+>>>>>>> origin/main
+  transform: scale(1.08);
 }
 
 .gr-panel-body {
-  padding: 18px 22px;
+  padding: 20px 24px;
   overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.gr-panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gr-panel-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.gr-panel-body::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.4);
+  border-radius: 3px;
+}
+
+/* ============================================================
+   SPLIT LAYOUT ON EXPANDED MODE:
+   Left Photo: FULL HEIGHT TO BOTTOM, stays in place (fixed / sticky)
+   Right Text: ONLY THIS CONTAINER SCROLLS
+   ============================================================ */
+.gr-body-expanded {
+  display: flex !important;
+  flex-direction: row;
+  align-items: stretch;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  /* Parent does not scroll */
+  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (max-width: 820px) {
+  .gr-body-expanded {
+    flex-direction: column;
+    overflow-y: auto !important;
+    height: auto;
+  }
+}
+
+/* Left Photo/Document Column - Stays in place, fills full height all the way to bottom */
+.gr-media-wrap {
+  margin-bottom: 18px;
+}
+
+.gr-media-expanded {
+  margin: 0;
+  flex: 0 0 clamp(320px, 42vw, 490px);
+  width: clamp(320px, 42vw, 490px);
+  height: 100%;
+  align-self: stretch;
+  position: relative;
+  padding: 20px;
+  background: linear-gradient(180deg, #0a182d 0%, #0d203b 100%);
+  border-right: 1.5px solid rgba(212, 175, 55, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* STAYS IN PLACE! */
+  box-sizing: border-box;
+}
+
+@media (max-width: 820px) {
+  .gr-media-expanded {
+    width: 100%;
+    flex: none;
+    height: auto;
+    border-right: none;
+    border-bottom: 1.5px solid rgba(212, 175, 55, 0.4);
+  }
+}
+
+.gr-media-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 0;
+}
+
+.gr-panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gr-panel-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.gr-panel-body::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.4);
+  border-radius: 3px;
+}
+
+/* Responsive two-column layout when expanded */
+.gr-body-expanded {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) 1fr;
+  gap: clamp(16px, 2.5vw, 30px);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .gr-body-expanded {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gr-media-wrap {
+  margin-bottom: 18px;
+}
+
+.gr-media-expanded {
+  margin-bottom: 0;
+  position: sticky;
+  top: 0;
 }
 
 .gr-portrait {
   display: block;
   width: 100%;
-  height: 200px;
+  max-height: 250px;
   object-fit: contain;
-  background: #14100c;
-  border: 1px solid rgba(212, 175, 110, 0.25);
-  border-radius: 3px;
+<<<<<<< HEAD
+  background: #081424;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
 
-.gr-index {
-  margin-top: 14px;
+.gr-media-expanded .gr-portrait {
+  max-height: clamp(260px, 35vh, 420px);
+}
+
+.gr-sec-title {
+  margin: 16px 0 6px;
   font-size: 12px;
-  color: rgba(236, 228, 214, 0.5);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d4af37;
+}
+
+.gr-panel-expanded .gr-sec-title {
+  font-size: clamp(12.5px, 1.2vw, 14px);
+  margin: 18px 0 8px;
+}
+
+.gr-desc-lead {
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: #f0ebe0;
+  margin: 0 0 10px;
+}
+
+.gr-panel-expanded .gr-desc-lead {
+  font-size: clamp(14.5px, 1.45vw, 17px);
+  line-height: 1.65;
+=======
+  background: #102646;
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* In expanded mode, photo extends FULL HEIGHT TO BOTTOM without limitation */
+.gr-media-expanded .gr-portrait {
+  width: 100%;
+  height: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: none !important;
+  object-fit: contain;
+  background: #091527;
+  border: 2px solid rgba(212, 175, 55, 0.55);
+  border-radius: 8px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.75), 0 0 24px rgba(212, 175, 55, 0.2);
+}
+
+.gr-media-caption {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #ffd966;
+  text-transform: uppercase;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 4px 14px;
+  border-radius: 12px;
+  flex: none;
+}
+
+/* Right Text Column - Only this container scrolls */
+.gr-body-expanded .gr-content-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto !important;
+  /* ONLY TEXT SCROLLS */
+  padding: 24px 32px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.gr-body-expanded .gr-content-wrap::-webkit-scrollbar {
+  width: 7px;
+}
+
+.gr-body-expanded .gr-content-wrap::-webkit-scrollbar-track {
+  background: rgba(14, 30, 56, 0.5);
+}
+
+.gr-body-expanded .gr-content-wrap::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.5);
+  border-radius: 4px;
+}
+
+.gr-body-expanded .gr-content-wrap::-webkit-scrollbar-thumb:hover {
+  background: #ffd700;
+}
+
+.gr-content-foot {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(212, 175, 55, 0.3);
+  flex: none;
+}
+
+/* Typography & Content Colors: Responsive across screen widths */
+.gr-name {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.25rem, 1rem + 1.2vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #ffffff;
+}
+
+.gr-years {
+  margin: 6px 0 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: clamp(0.82rem, 0.72rem + 0.4vw, 1.05rem);
+  color: #ffd966;
+}
+
+.gr-sec-title {
+  margin: 20px 0 8px;
+  font-size: clamp(0.78rem, 0.7rem + 0.35vw, 0.95rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffd700;
+}
+
+.gr-desc-lead {
+  font-size: clamp(0.95rem, 0.85rem + 0.45vw, 1.2rem);
+  font-weight: 500;
+  line-height: 1.65;
+  color: #ffffff;
+  margin: 0 0 14px;
+>>>>>>> origin/main
+}
+
+.gr-desc-text,
+.gr-desc-content p {
+<<<<<<< HEAD
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #d6cebf;
+  margin: 0 0 10px;
+}
+
+.gr-panel-expanded .gr-desc-text,
+.gr-panel-expanded .gr-desc-content p {
+  font-size: clamp(13.5px, 1.3vw, 15.5px);
+  line-height: 1.7;
+}
+
+.gr-quote {
+  margin: 14px 0;
+  padding: 10px 16px;
+  background: rgba(212, 175, 55, 0.1);
+  border-left: 3px solid #d4af37;
+  border-radius: 0 4px 4px 0;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: #ffe699;
+}
+
+.gr-panel-expanded .gr-quote {
+  font-size: clamp(14px, 1.4vw, 16.5px);
+  padding: 12px 18px;
+}
+
+.gr-highlights-box {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 6px;
+}
+
+.gr-highlights-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #e8e2d5;
+}
+
+.gr-panel-expanded .gr-highlights-list {
+  font-size: clamp(13px, 1.3vw, 15px);
+}
+
+.gr-highlights-list li {
+  margin-bottom: 6px;
 }
 
 .gr-panel-foot {
-  padding: 14px 22px 20px;
-  border-top: 1px solid rgba(212, 175, 110, 0.18);
+  padding: 14px 24px 20px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+=======
+  font-size: clamp(0.88rem, 0.8rem + 0.35vw, 1.05rem);
+  line-height: 1.75;
+  color: #f1f5f9;
+  margin: 0 0 14px;
+}
+
+.gr-quote {
+  margin: 18px 0;
+  padding: clamp(12px, 1.2vw, 18px) clamp(16px, 1.6vw, 24px);
+  background: rgba(255, 215, 0, 0.12);
+  border-left: 4px solid #ffd700;
+  border-radius: 0 8px 8px 0;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.95rem, 0.85rem + 0.45vw, 1.2rem);
+  color: #fff1b8;
+}
+
+.gr-highlights-box {
+  margin-top: 18px;
+  padding: clamp(14px, 1.4vw, 20px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  border-radius: 8px;
+}
+
+.gr-highlights-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  font-size: clamp(0.84rem, 0.76rem + 0.35vw, 1rem);
+  line-height: 1.75;
+  color: #f8fafc;
+}
+
+.gr-highlights-list li {
+  margin-bottom: 8px;
+}
+
+.gr-panel-foot {
+  padding: 14px 24px 18px;
+  border-top: 1px solid rgba(212, 175, 55, 0.3);
+  flex: none;
+>>>>>>> origin/main
 }
 
 .gr-continue {
   width: 100%;
   min-height: 44px;
-  background: linear-gradient(180deg, #d4af37, #b98f2e);
+  background: linear-gradient(180deg, #d4af37, #b88f28);
   border: none;
-  border-radius: 3px;
-  color: #241a10;
-  font-size: 15px;
-  font-weight: 600;
-  transition: filter 0.15s ease;
+  border-radius: 5px;
+  color: #0b1d3a;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: all 0.18s ease;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
 }
 
 .gr-continue:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.12);
+  transform: translateY(-1px);
 }
 
 /* ============================================================
-   Mobile controls
+   Mobile View Styles
+   (Explicitly hidden on laptops/desktop, shown only on mobile/touch devices)
    ============================================================ */
 .gr-mobile {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 20;
+  display: none;
 }
 
-.gr-back,
-.gr-reset {
+<<<<<<< HEAD
+@media (max-width: 820px), (pointer: coarse) {
+=======
+@media (max-width: 820px),
+(pointer: coarse) {
+>>>>>>> origin/main
+  .gr-mobile {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+  }
+}
+
+.gr-mobile-top {
   position: absolute;
   top: max(14px, env(safe-area-inset-top));
-  min-height: 44px;
-  padding: 10px 16px;
-  background: rgba(24, 19, 14, 0.82);
-  border: 1px solid rgba(212, 175, 110, 0.45);
-  border-radius: 4px;
-  color: #ecd9b0;
-  font-size: 15px;
+  left: max(14px, env(safe-area-inset-left));
+  right: max(14px, env(safe-area-inset-right));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   pointer-events: auto;
 }
 
-.gr-back {
-  left: max(14px, env(safe-area-inset-left));
+.gr-mobile-header strong {
+  display: inline-block;
+  padding: 8px 14px;
+  background: rgba(11, 29, 58, 0.88);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 6px;
+  color: #d4af37;
+  font-family: Georgia, serif;
+  font-size: 13px;
 }
 
 .gr-reset {
-  right: max(14px, env(safe-area-inset-right));
+  min-height: 38px;
+  padding: 6px 14px;
+  background: rgba(11, 29, 58, 0.88);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 6px;
+  color: #ffd966;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.gr-mobile-sections {
+  position: absolute;
+  top: calc(56px + max(14px, env(safe-area-inset-top)));
+  left: 14px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  pointer-events: auto;
+  padding-bottom: 4px;
+}
+
+.gr-mobile-sections button {
+  flex: none;
+  padding: 6px 12px;
+  background: rgba(11, 29, 58, 0.82);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 16px;
+  color: #f7f4eb;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .gr-joystick {
@@ -232,8 +1034,8 @@
   width: 128px;
   height: 128px;
   border-radius: 50%;
-  background: rgba(24, 19, 14, 0.55);
-  border: 1.5px solid rgba(212, 175, 110, 0.45);
+  background: rgba(11, 29, 58, 0.65);
+  border: 2px solid rgba(212, 175, 55, 0.5);
   pointer-events: auto;
   touch-action: none;
   transition: opacity 0.2s ease;
@@ -248,118 +1050,97 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #e8c98a, #a9803f);
-  border: 1px solid rgba(255, 240, 210, 0.6);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  background: radial-gradient(circle at 35% 30%, #ffd966, #b88f28);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .gr-joy-label {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -24px;
+  bottom: -22px;
   text-align: center;
   font-size: 11px;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(233, 214, 177, 0.75);
+  color: #ffd966;
 }
 
 .gr-mobile-hint {
   position: absolute;
   right: 18px;
-  bottom: calc(34px + env(safe-area-inset-bottom));
+  bottom: calc(30px + env(safe-area-inset-bottom));
   max-width: 150px;
   margin: 0;
   text-align: right;
-  font-size: 12px;
-  line-height: 1.5;
-  color: rgba(226, 214, 192, 0.75);
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: rgba(247, 244, 235, 0.8);
+  pointer-events: none;
 }
 
 /* ============================================================
-   Mobile layout — designed separately, not a shrunken desktop
+   Responsive Breakpoints
    ============================================================ */
 @media (max-width: 820px) {
   .gr-hints {
     display: none;
   }
 
-  .gr-scrim {
-    display: block;
-    position: absolute;
-    inset: 0;
-    background: rgba(10, 8, 6, 0.45);
-    z-index: 25;
+  .gr-wayfind-overlay {
+    top: auto;
+    bottom: calc(90px + env(safe-area-inset-bottom));
+    left: 14px;
+    right: 14px;
   }
 
-  .gr-panel {
+  .gr-wayfind-card {
+    width: 100%;
+  }
+
+  .gr-scrim {
+    display: block;
+  }
+
+  .gr-panel-sidebar,
+  .gr-panel-expanded {
     top: auto;
     right: 0;
     left: 0;
     bottom: 0;
     transform: none;
     width: auto;
-    max-height: 60svh;
-    border-radius: 14px 14px 0 0;
+    max-height: 70svh;
+    border-radius: 16px 16px 0 0;
     border-left: none;
     border-right: none;
     border-bottom: none;
-    z-index: 30;
     padding-bottom: env(safe-area-inset-bottom);
-    animation: gr-sheet-in 0.24s ease-out;
+    animation: gr-sheet-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .gr-body-expanded {
+    display: block;
   }
 
   @keyframes gr-sheet-in {
     from {
-      transform: translateY(24px);
+      transform: translateY(30px);
       opacity: 0;
     }
+
     to {
       transform: translateY(0);
       opacity: 1;
     }
   }
-
-  .gr-panel-head {
-    padding: 18px 20px 14px;
-  }
-
-  .gr-name {
-    font-size: 22px;
-  }
-
-  .gr-close {
-    width: 44px;
-    height: 44px;
-  }
-
-  .gr-panel-body {
-    padding: 16px 20px;
-  }
-
-  .gr-portrait {
-    height: 150px;
-  }
-
-  .gr-panel-foot {
-    padding: 12px 20px 16px;
-  }
-
-  .gr-mobile-hint {
-    max-width: 130px;
-    font-size: 11px;
-  }
+<<<<<<< HEAD
 }
-
-/* ============================================================
-   Accessibility
-   ============================================================ */
-@media (prefers-reduced-motion: reduce) {
-  .gr-panel {
-    animation: none;
-  }
+=======
 }
+>>>>>>> origin/main

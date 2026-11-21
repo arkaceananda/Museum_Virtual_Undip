@@ -1,19 +1,22 @@
-/** Subtle keyboard hints for desktop visitors. */
+/**
+ * Museum Virtual Undip - Subtle Desktop Keyboard Controls
+ */
 export function DesktopHints() {
   return (
     <div className="gr-hints" aria-hidden="true">
       <span>
         <kbd>W</kbd>
-        <kbd>↑</kbd> forward
-      </span>
-      <span>
+        <kbd>A</kbd>
         <kbd>S</kbd>
-        <kbd>↓</kbd> backward
+        <kbd>D</kbd> atau <kbd>Panah</kbd> jalan & geser
       </span>
-      <span>mouse to look</span>
-      <span>click a portrait</span>
+      <span>klik & geser mouse untuk melihat</span>
+      <span>klik objek untuk membaca informasi</span>
       <span>
-        <kbd>ESC</kbd> release cursor
+        <kbd>N</kbd> kunci / lepas pandangan
+      </span>
+      <span>
+        <kbd>ESC</kbd> lepas kursor
       </span>
     </div>
   )

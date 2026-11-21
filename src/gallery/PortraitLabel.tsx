@@ -1,12 +1,10 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { PortraitLabelProps } from './types'
 import { createLabelTexture } from './textures'
 
 /** Ivory information label under a portrait: name, years, position. */
 export function PortraitLabel({ portrait }: PortraitLabelProps) {
   const texture = useMemo(() => createLabelTexture(portrait), [portrait])
-
-  useEffect(() => () => texture.dispose(), [texture])
 
   return (
     <mesh position={[0, -1.32, -0.05]}>

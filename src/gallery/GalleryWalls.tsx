@@ -1,4 +1,4 @@
-import type { GalleryWallsProps } from './types'
+import type { GalleryWallsProps, Portrait } from './types'
 import { FIRST_Z, FRAME_Y, SPACING, WALL_X } from './layout'
 import { PortraitFrame } from './PortraitFrame'
 
@@ -29,7 +29,7 @@ export function GalleryWalls({
 
   return (
     <group>
-      {left.map((portrait, index) => (
+      {left.map((portrait: Portrait, index: number) => (
         <PortraitFrame
           key={portrait.id}
           portrait={portrait}
@@ -38,7 +38,7 @@ export function GalleryWalls({
           {...frameProps(portrait.id)}
         />
       ))}
-      {right.map((portrait, index) => (
+      {right.map((portrait: Portrait, index: number) => (
         <PortraitFrame
           key={portrait.id}
           portrait={portrait}

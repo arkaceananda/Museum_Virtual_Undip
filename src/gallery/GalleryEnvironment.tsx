@@ -1,154 +1,227 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
-import { CORRIDOR, PILASTER_ZS } from './layout'
-import { createFloorTexture, createPortraitTexture, createTitleTexture } from './textures'
-import { PORTRAITS } from './data/portraits'
+import {
+  DIRECTORY_BOARD_POS,
+  HALL,
+  HALL_CENTER_Z,
+  HALL_LENGTH,
+} from './layout'
+import { createFloorTexture } from './textures'
+import { CeilingRoof } from './CeilingRoof'
+import { RedCarpet } from './RedCarpet'
+import { Bookshelf, VisitorLounge } from './MuseumFurniture'
+import { DirectoryBoard } from './DirectoryBoard'
+
+interface GalleryEnvironmentProps {
+  isNearDirectory?: boolean
+  hoveredId?: string | null
+  onHover?: (id: string | null) => void
+}
 
 /**
- * The museum corridor: floor, walls, ceiling, moldings, pilasters,
- * entrance doors, and the end-of-corridor plaque.
- * Contains only three.js elements — all HTML UI lives outside the Canvas.
+ * Museum Virtual Undip - Master Architectural Environment
+ * Clean minimalist architectural space dividing left and right sides into sections:
+ * - Left Side: Founders Wing (5 Main Founders & 13 Leadership)
+ * - Right Side: History & Archives Wing (Dense Masonry Gallery)
+ * - Center: Red Carpet, Miniature Map, and Ceremonial Podium
+ * - Back Wall: Royal Navy Blue Wall with high contrast
  */
-export function GalleryEnvironment() {
+export function GalleryEnvironment({
+  isNearDirectory = false,
+}: GalleryEnvironmentProps) {
   const floorTexture = useMemo(() => {
-    const texture = createFloorTexture()
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(4, 12)
-    return texture
+    const tex = createFloorTexture()
+    tex.wrapS = THREE.RepeatWrapping
+    tex.wrapT = THREE.RepeatWrapping
+    tex.repeat.set(6, 16)
+    return tex
   }, [])
 
-  const titleTexture = useMemo(() => createTitleTexture(), [])
-  const plaqueArtTexture = useMemo(() => createPortraitTexture(PORTRAITS[0]), [])
-
-  const length = CORRIDOR.zFront - CORRIDOR.zBack
-  const centerZ = (CORRIDOR.zFront + CORRIDOR.zBack) / 2
-  const wallHalf = CORRIDOR.halfWidth
+  const halfW = HALL.halfWidth
+  const height = HALL.height
+  const length = HALL_LENGTH
+  const centerZ = HALL_CENTER_Z
 
   return (
     <group>
-      {/* Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, centerZ]} receiveShadow>
-        <planeGeometry args={[wallHalf * 2, length]} />
-        <meshStandardMaterial map={floorTexture} roughness={0.35} metalness={0.08} />
+      {/* 1. Master Marble Floor */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0, centerZ]}
+        receiveShadow
+      >
+        <planeGeometry args={[halfW * 2, length]} />
+        <meshStandardMaterial
+          map={floorTexture}
+          roughness={0.28}
+          metalness={0.12}
+        />
       </mesh>
 
-      {/* Left wall */}
-      <mesh position={[-wallHalf, CORRIDOR.height / 2, centerZ]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[length, CORRIDOR.height]} />
-        <meshStandardMaterial color="#d6c8b2" roughness={0.9} />
+      {/* 2. Left Wall (Founders Side) */}
+      <mesh
+        position={[-halfW, height / 2, centerZ]}
+        rotation={[0, Math.PI / 2, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[length, height]} />
+        <meshStandardMaterial color="#f7f4ec" roughness={0.92} />
       </mesh>
 
-      {/* Right wall */}
-      <mesh position={[wallHalf, CORRIDOR.height / 2, centerZ]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[length, CORRIDOR.height]} />
-        <meshStandardMaterial color="#d6c8b2" roughness={0.9} />
+      {/* 3. Right Wall (History & Archives Side) */}
+      <mesh
+        position={[halfW, height / 2, centerZ]}
+        rotation={[0, -Math.PI / 2, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[length, height]} />
+        <meshStandardMaterial color="#f7f4ec" roughness={0.92} />
       </mesh>
 
-      {/* Back wall */}
-      <mesh position={[0, CORRIDOR.height / 2, CORRIDOR.zBack]} receiveShadow>
-        <planeGeometry args={[wallHalf * 2, CORRIDOR.height]} />
-        <meshStandardMaterial color="#cbcba4" roughness={0.9} />
+      {/* 4. Front Entrance Wall (Behind Visitor) */}
+      <mesh
+        position={[0, height / 2, HALL.zFront]}
+        rotation={[0, Math.PI, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[halfW * 2, height]} />
+        <meshStandardMaterial color="#f7f4ec" roughness={0.92} />
       </mesh>
 
-      {/* Entrance wall (behind the visitor) */}
-      <mesh position={[0, CORRIDOR.height / 2, CORRIDOR.zFront]} rotation={[0, Math.PI, 0]} receiveShadow>
-        <planeGeometry args={[wallHalf * 2, CORRIDOR.height]} />
-        <meshStandardMaterial color="#d6c8b2" roughness={0.9} />
+      {/* 5. Back Focal Wall (Behind the Ceremonial Dais) - Royal Navy Blue */}
+      <mesh
+        position={[0, height / 2, HALL.zBack]}
+        receiveShadow
+      >
+        <planeGeometry args={[halfW * 2, height]} />
+        <meshStandardMaterial color="#142e56" roughness={0.7} />
       </mesh>
 
-      {/* Ceiling */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, CORRIDOR.height, centerZ]} receiveShadow>
-        <planeGeometry args={[wallHalf * 2, length]} />
-        <meshStandardMaterial color="#efe6d6" roughness={0.95} />
-      </mesh>
-
-      {/* Wainscoting, chair rail, crown molding and baseboards — both sides */}
+      {/* 6. Grand Architectural Wainscoting & Baseboards along Left & Right Walls */}
       {[-1, 1].map((side) => (
         <group key={side}>
-          {/* Dark wood wainscot */}
-          <mesh position={[side * (wallHalf - 0.04), 0.375, centerZ]} receiveShadow>
-            <boxGeometry args={[0.08, 0.75, length]} />
-            <meshStandardMaterial color="#4a3524" roughness={0.55} metalness={0.1} />
+          {/* Baseboard (Dark Walnut Teak) */}
+          <mesh position={[side * (halfW - 0.05), 0.1, centerZ]}>
+            <boxGeometry args={[0.1, 0.2, length]} />
+            <meshStandardMaterial color="#2c1a0e" roughness={0.5} />
           </mesh>
-          {/* Baseboard */}
-          <mesh position={[side * (wallHalf - 0.05), 0.06, centerZ]}>
-            <boxGeometry args={[0.1, 0.12, length]} />
-            <meshStandardMaterial color="#33241a" roughness={0.6} />
-          </mesh>
-          {/* Chair rail */}
-          <mesh position={[side * (wallHalf - 0.05), 0.8, centerZ]}>
-            <boxGeometry args={[0.1, 0.07, length]} />
-            <meshStandardMaterial color="#8a6b42" roughness={0.5} metalness={0.15} />
-          </mesh>
-          {/* Crown molding */}
-          <mesh position={[side * (wallHalf - 0.06), CORRIDOR.height - 0.16, centerZ]}>
-            <boxGeometry args={[0.12, 0.2, length]} />
-            <meshStandardMaterial color="#e6dccb" roughness={0.8} />
+          {/* Gold Inlay line on baseboard */}
+          <mesh position={[side * (halfW - 0.09), 0.2, centerZ]}>
+            <boxGeometry args={[0.02, 0.03, length]} />
+            <meshStandardMaterial color="#d4af37" roughness={0.28} metalness={0.85} />
           </mesh>
 
-          {/* Pilasters between portraits */}
-          {PILASTER_ZS.map((z, i) => (
-            <group key={i} position={[side * (wallHalf - 0.05), 0, z]}>
-              <mesh position={[0, 2.05, 0]} receiveShadow>
-                <boxGeometry args={[0.1, 3.9, 0.4]} />
-                <meshStandardMaterial color="#c3b198" roughness={0.85} />
-              </mesh>
-              <mesh position={[0, 4.06, 0]}>
-                <boxGeometry args={[0.16, 0.14, 0.5]} />
-                <meshStandardMaterial color="#e0d5c2" roughness={0.8} />
-              </mesh>
-            </group>
-          ))}
+          {/* Heritage Brown Wainscot Panel */}
+          <mesh position={[side * (halfW - 0.04), 0.55, centerZ]} receiveShadow>
+            <boxGeometry args={[0.08, 0.7, length]} />
+            <meshStandardMaterial color="#3d2516" roughness={0.52} metalness={0.12} />
+          </mesh>
+
+          {/* Gold Chair Rail Molding */}
+          <mesh position={[side * (halfW - 0.06), 0.92, centerZ]}>
+            <boxGeometry args={[0.12, 0.06, length]} />
+            <meshStandardMaterial color="#d4af37" roughness={0.3} metalness={0.85} />
+          </mesh>
+
+          {/* Upper Cove Emissive Strip */}
+          <mesh position={[side * (halfW - 0.04), height - 0.6, centerZ]}>
+            <boxGeometry args={[0.04, 0.04, length * 0.9]} />
+            <meshStandardMaterial
+              color="#fff3db"
+              emissive="#ffd999"
+              emissiveIntensity={0.8}
+              roughness={0.3}
+            />
+          </mesh>
         </group>
       ))}
 
-      {/* Recessed ceiling light strips (emissive, warm) */}
-      {[-1.4, 1.4].map((x) => (
-        <mesh key={x} position={[x, CORRIDOR.height - 0.06, centerZ]}>
-          <boxGeometry args={[0.7, 0.08, length - 4]} />
-          <meshStandardMaterial
-            color="#fff3dd"
-            emissive="#ffd9a0"
-            emissiveIntensity={1.1}
-            roughness={0.6}
-          />
+      {/* 7. Grand Classical Entrance Double Doors & Archway (Facing Inward to Visitor) */}
+      <group position={[0, 0, HALL.zFront - 0.05]} rotation={[0, Math.PI, 0]}>
+        {/* Outer Fluted Door Casing (Dark Teak) */}
+        <mesh position={[0, 2.2, 0.04]} castShadow receiveShadow>
+          <boxGeometry args={[3.8, 4.4, 0.14]} />
+          <meshStandardMaterial color="#2c1a0e" roughness={0.45} metalness={0.15} />
         </mesh>
-      ))}
 
-      {/* Entrance double doors */}
-      {[-0.62, 0.62].map((x) => (
-        <mesh key={x} position={[x, 1.35, CORRIDOR.zFront - 0.05]} receiveShadow>
-          <boxGeometry args={[1.16, 2.7, 0.1]} />
-          <meshStandardMaterial color="#4a3524" roughness={0.5} metalness={0.1} />
+        {/* Gilded Architrave / Pediment Header */}
+        <mesh position={[0, 4.45, 0.08]} castShadow>
+          <boxGeometry args={[4.1, 0.35, 0.18]} />
+          <meshStandardMaterial color="#142e56" roughness={0.35} metalness={0.25} />
         </mesh>
-      ))}
+        <mesh position={[0, 4.65, 0.1]}>
+          <boxGeometry args={[4.2, 0.06, 0.22]} />
+          <meshStandardMaterial color="#d4af37" roughness={0.25} metalness={0.88} />
+        </mesh>
+        <mesh position={[0, 4.25, 0.08]}>
+          <boxGeometry args={[3.9, 0.04, 0.16]} />
+          <meshStandardMaterial color="#d4af37" roughness={0.25} metalness={0.88} />
+        </mesh>
 
-      {/* End-of-corridor focal: gilded plaque */}
-      <group position={[0, 2.3, CORRIDOR.zBack + 0.08]}>
-        <mesh castShadow>
-          <boxGeometry args={[3.4, 2.3, 0.12]} />
-          <meshStandardMaterial color="#c9a25f" roughness={0.35} metalness={0.8} />
-        </mesh>
-        <mesh position={[0, 0, 0.07]}>
-          <planeGeometry args={[3.1, 2]} />
-          <meshStandardMaterial map={titleTexture} roughness={0.7} />
-        </mesh>
+        {/* Symmetrical Left & Right Door Leaves (Dark Teak with Royal Navy & Gold Insets) */}
+        {[-0.9, 0.9].map((dx, di) => (
+          <group key={di} position={[dx, 2.1, 0.08]}>
+            {/* Door Leaf Body */}
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[1.7, 4.0, 0.08]} />
+              <meshStandardMaterial color="#24150b" roughness={0.5} metalness={0.12} />
+            </mesh>
+
+            {/* Perimeter Gold Molding on Door Leaf */}
+            <mesh position={[0, 0, 0.042]}>
+              <boxGeometry args={[1.5, 3.8, 0.01]} />
+              <meshStandardMaterial color="#d4af37" roughness={0.28} metalness={0.85} />
+            </mesh>
+
+            {/* Upper Navy Inset Panel */}
+            <mesh position={[0, 0.7, 0.048]}>
+              <boxGeometry args={[1.34, 2.0, 0.015]} />
+              <meshStandardMaterial color="#142e56" roughness={0.4} metalness={0.2} />
+            </mesh>
+
+            {/* Lower Navy Inset Panel */}
+            <mesh position={[0, -0.9, 0.048]}>
+              <boxGeometry args={[1.34, 1.4, 0.015]} />
+              <meshStandardMaterial color="#142e56" roughness={0.4} metalness={0.2} />
+            </mesh>
+
+            {/* Polished Brass Vertical Bar Pull Handle (Centered near meeting stile) */}
+            <group position={[di === 0 ? 0.68 : -0.68, 0, 0.08]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.02, 0.02, 0.65, 16]} />
+                <meshStandardMaterial color="#ffd700" roughness={0.2} metalness={0.92} />
+              </mesh>
+              {[-0.26, 0.26].map((hy, hi) => (
+                <mesh key={hi} position={[0, hy, -0.03]} rotation={[Math.PI / 2, 0, 0]}>
+                  <cylinderGeometry args={[0.015, 0.015, 0.06, 12]} />
+                  <meshStandardMaterial color="#d4af37" roughness={0.25} metalness={0.88} />
+                </mesh>
+              ))}
+            </group>
+          </group>
+        ))}
       </group>
 
-      {/* Flanking artworks near the end */}
-      {[-2.1, 2.1].map((x) => (
-        <group key={x} position={[x, 2.1, CORRIDOR.zBack + 0.06]}>
-          <mesh castShadow>
-            <boxGeometry args={[1.1, 1.4, 0.1]} />
-            <meshStandardMaterial color="#9c6b30" roughness={0.4} metalness={0.7} />
-          </mesh>
-          <mesh position={[0, 0, 0.06]}>
-            <planeGeometry args={[0.9, 1.2]} />
-            <meshStandardMaterial map={plaqueArtTexture} roughness={0.7} />
-          </mesh>
-        </group>
-      ))}
+      {/* 8. Alternating Rectangular Gap Roof */}
+      <CeilingRoof />
+
+      {/* 10. Central Red Carpet */}
+      <RedCarpet />
+
+      {/* 11. EXTRA ASSETS: 3D Archival Bookshelves */}
+      <Bookshelf position={[halfW - 0.35, 0, 10.6]} rotationY={-Math.PI / 2} />
+      <Bookshelf position={[-halfW + 0.35, 0, 10.6]} rotationY={Math.PI / 2} />
+
+      {/* 12. EXTRA ASSETS: Visitor Lounge */}
+      <VisitorLounge position={[4.8, 0, 3.8]} rotationY={-Math.PI / 6} />
+      <VisitorLounge position={[-4.8, 0, 3.8]} rotationY={Math.PI / 6} />
+
+      {/* 13. EXTRA ASSET: Standing Wayfinding Directory Board */}
+      <DirectoryBoard
+        position={DIRECTORY_BOARD_POS}
+        rotationY={-Math.PI / 4}
+        isNear={isNearDirectory}
+      />
     </group>
   )
 }
