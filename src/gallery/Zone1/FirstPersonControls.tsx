@@ -10,6 +10,7 @@ import {
   EYE_HEIGHT,
   LOOK_SENSITIVITY,
   PITCH_LIMIT,
+  RUN_SPEED,
   START_POSITION,
   WALK_SPEED,
 } from './layout'
@@ -18,6 +19,7 @@ const FORWARD_KEYS = new Set(['KeyW', 'ArrowUp'])
 const BACKWARD_KEYS = new Set(['KeyS', 'ArrowDown'])
 const LEFT_KEYS = new Set(['KeyA', 'ArrowLeft'])
 const RIGHT_KEYS = new Set(['KeyD', 'ArrowRight'])
+const SPRINT_KEYS = new Set(['ShiftLeft', 'ShiftRight', 'Shift'])
 
 /**
  * 2D First-Person Museum Controls:
@@ -67,20 +69,29 @@ export function FirstPersonControls({
         FORWARD_KEYS.has(event.code) ||
         BACKWARD_KEYS.has(event.code) ||
         LEFT_KEYS.has(event.code) ||
-        RIGHT_KEYS.has(event.code)
+        RIGHT_KEYS.has(event.code) ||
+        SPRINT_KEYS.has(event.code) ||
+        event.key === 'Shift'
       ) {
         event.preventDefault()
         keys.current.add(event.code)
+        if (event.key === 'Shift') keys.current.add('Shift')
       }
     }
     const onKeyUp = (event: KeyboardEvent) => {
       keys.current.delete(event.code)
+      if (event.key === 'Shift') keys.current.delete('Shift')
+    }
+    const onBlur = () => {
+      keys.current.clear()
     }
     window.addEventListener('keydown', onKeyDown, { passive: false })
     window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('blur', onBlur)
     return () => {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
+      window.removeEventListener('blur', onBlur)
     }
   }, [])
 
@@ -193,14 +204,21 @@ export function FirstPersonControls({
     forward = Math.max(-1, Math.min(1, forward))
     strafe = Math.max(-1, Math.min(1, strafe))
 
+    const isSprinting =
+      keys.current.has('ShiftLeft') ||
+      keys.current.has('ShiftRight') ||
+      keys.current.has('Shift')
+
+    const currentSpeed = isSprinting ? RUN_SPEED : WALK_SPEED
+
     if (forward !== 0 || strafe !== 0) {
       // Rotate movement vector by camera yaw
       const cosY = Math.cos(yaw.current)
       const sinY = Math.sin(yaw.current)
 
       // Forward is along -Z in local space, Strafe is along +X in local space
-      const dx = (strafe * cosY - forward * sinY) * WALK_SPEED * dt
-      const dz = (-forward * cosY - strafe * sinY) * WALK_SPEED * dt
+      const dx = (strafe * cosY - forward * sinY) * currentSpeed * dt
+      const dz = (-forward * cosY - strafe * sinY) * currentSpeed * dt
 
       pos.current[0] = Math.max(BOUNDS.minX, Math.min(BOUNDS.maxX, pos.current[0] + dx))
       pos.current[2] = Math.max(BOUNDS.minZ, Math.min(BOUNDS.maxZ, pos.current[2] + dz))

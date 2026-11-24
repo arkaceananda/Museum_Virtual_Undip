@@ -179,6 +179,79 @@ interface HistoryArchivesWingProps {
  * Sayap Sejarah & Arsip Resmi Undip (Generously Spaced Museum Gallery Wall)
  * Spans smoothly with >= 55cm horizontal and vertical gaps alongside the 3D Miniature Map.
  */
+interface ActiveTrackSpotlightProps {
+  z: number
+}
+
+function ActiveTrackSpotlight({ z }: ActiveTrackSpotlightProps) {
+  const targetObj = useMemo(() => {
+    const obj = new THREE.Object3D()
+    obj.position.set(0.8, -2.3, 0)
+    return obj
+  }, [])
+
+  return (
+    <group position={[HISTORY_WALL_X - 0.8, 5.15, z]}>
+      {/* Track Stem Connector attaching canister to horizontal pole */}
+      <mesh position={[0, 0.045, 0]}>
+        <cylinderGeometry args={[0.012, 0.012, 0.08, 8]} />
+        <meshStandardMaterial color="#c5a059" metalness={0.9} roughness={0.2} />
+      </mesh>
+
+      {/* Swivel Elbow */}
+      <mesh position={[0, 0.01, 0]}>
+        <sphereGeometry args={[0.022, 12, 12]} />
+        <meshStandardMaterial color="#c5a059" metalness={0.9} roughness={0.2} />
+      </mesh>
+
+      {/* Spotlight Fixture Canister (Angled towards the wall) */}
+      <mesh position={[0.03, -0.04, 0]} rotation={[0, 0, -0.45]}>
+        <cylinderGeometry args={[0.05, 0.07, 0.16, 16]} />
+        <meshStandardMaterial color="#1f1d19" roughness={0.35} metalness={0.8} />
+      </mesh>
+
+      {/* Luminous Glowing Warm LED Lens / Bulb (VISIBLY ON & SHINING) */}
+      <mesh position={[0.075, -0.09, 0]} rotation={[0, 0, -0.45]}>
+        <cylinderGeometry args={[0.048, 0.048, 0.018, 16]} />
+        <meshStandardMaterial
+          color="#fffdf5"
+          emissive="#ffcc44"
+          emissiveIntensity={4.8}
+          roughness={0.12}
+        />
+      </mesh>
+
+      {/* Inner Gold Reflector Bezel */}
+      <mesh position={[0.065, -0.08, 0]} rotation={[0, 0, -0.45]}>
+        <cylinderGeometry args={[0.055, 0.055, 0.01, 16]} />
+        <meshStandardMaterial color="#d4af37" metalness={0.9} roughness={0.2} />
+      </mesh>
+
+      {/* Realistic Local Fixture Glow */}
+      <pointLight
+        position={[0.09, -0.11, 0]}
+        color="#ffe299"
+        intensity={3.5}
+        distance={2.0}
+        decay={2}
+      />
+
+      {/* Directed Warm Museum Wall Spotlight */}
+      <primitive object={targetObj} />
+      <spotLight
+        position={[0.08, -0.1, 0]}
+        target={targetObj}
+        color="#fff1dc"
+        intensity={36}
+        angle={0.62}
+        penumbra={0.7}
+        distance={8.5}
+        decay={2}
+      />
+    </group>
+  )
+}
+
 export function HistoryArchivesWing({
   selectedExhibitId,
   hoveredId,
@@ -193,32 +266,30 @@ export function HistoryArchivesWing({
 
   return (
     <group>
-      {/* Aesthetic Museum Track-Lighting Beam running above the gallery wall */}
-      <mesh position={[HISTORY_WALL_X - 0.8, 5.2, -4.5]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[0.08, 0.08, 23.0]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.3} metalness={0.8} />
-      </mesh>
-
-      {/* Rhythmic Focused Track Spotlights on the Clusters (Warm Yellow Spotlights) */}
-      {[5.6, 3.3, 1.1, -1.5, -3.5, -5.7, -7.9, -10.1, -12.3, -14.5].map((spotZ, sIdx) => (
-        <group key={`track-spot-${sIdx}`} position={[HISTORY_WALL_X - 0.8, 5.15, spotZ]}>
-          {/* Spotlight Fixture Canister */}
-          <mesh rotation={[0, 0, -0.45]}>
-            <cylinderGeometry args={[0.05, 0.07, 0.18, 12]} />
-            <meshStandardMaterial color="#222222" roughness={0.3} metalness={0.8} />
+      {/* Horizontal Museum Track-Lighting Beam running above the history gallery wall */}
+      <group position={[HISTORY_WALL_X - 0.8, 5.2, -4.5]}>
+        {/* Main Track Rail */}
+        <mesh>
+          <boxGeometry args={[0.07, 0.07, 23.0]} />
+          <meshStandardMaterial color="#1a1a1a" roughness={0.3} metalness={0.8} />
+        </mesh>
+        {/* Brass Accent Trim along bottom of rail */}
+        <mesh position={[0, -0.036, 0]}>
+          <boxGeometry args={[0.03, 0.008, 22.9]} />
+          <meshStandardMaterial color="#d4af37" metalness={0.88} roughness={0.25} />
+        </mesh>
+        {/* Wall Mounting Strut Brackets connecting beam to the right wall */}
+        {[9.5, 4.5, -0.5, -5.5, -9.5].map((bz, bi) => (
+          <mesh key={`bracket-${bi}`} position={[0.4, 0, bz]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.012, 0.012, 0.8, 12]} />
+            <meshStandardMaterial color="#2a2a2a" metalness={0.8} roughness={0.3} />
           </mesh>
-          {/* Focused Warm Gold Wall Spotlight with Soft Falloff */}
-          <spotLight
-            position={[0, 0, 0]}
-            target-position={[0.8, -2.6, 0]}
-            color="#ffea9f"
-            intensity={24}
-            angle={0.62}
-            penumbra={0.72}
-            distance={7.5}
-            decay={2}
-          />
-        </group>
+        ))}
+      </group>
+
+      {/* Rhythmic Focused Track Spotlights on the Clusters (Turned ON with Luminous Emitters) */}
+      {[5.6, 3.3, 1.1, -1.5, -3.5, -5.7, -7.9, -10.1, -12.3, -14.5].map((spotZ, sIdx) => (
+        <ActiveTrackSpotlight key={`active-track-spot-${sIdx}`} z={spotZ} />
       ))}
 
       {/* Museum Gallery Wall Items */}

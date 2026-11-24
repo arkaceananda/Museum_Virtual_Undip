@@ -22,6 +22,7 @@ export const HALL_CENTER_Z = (HALL.zFront + HALL.zBack) / 2 // -7.0m
 export const EYE_HEIGHT = 1.65
 export const START_POSITION: [number, number, number] = [0, EYE_HEIGHT, 9.5]
 export const WALK_SPEED = 3.6
+export const RUN_SPEED = 7.2 // 2x speed sprint with Shift key
 
 /** Navigation Clamping Limits */
 export const BOUNDS = {

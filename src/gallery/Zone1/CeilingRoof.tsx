@@ -267,55 +267,6 @@ export function CeilingRoof() {
           />
         </group>
       ))}
-
-      {/* 5. AESTHETIC MUSEUM PENDANT SPOTLIGHTS OVER THE CAMPUS MAKET
-          (Lampu Gantung Sorot Kuning - Museum-grade directional warmth) */}
-      <group position={[0, 0, -3.5]}>
-        {[-1.6, 0, 1.6].map((pz, pi) => (
-          <group key={`pendant-maket-${pi}`} position={[0, 0, pz]}>
-            {/* Black Cord / Suspension Rod hanging from ceiling */}
-            <mesh position={[0, -1.8, 0]}>
-              <cylinderGeometry args={[0.012, 0.012, 3.6, 12]} />
-              <meshStandardMaterial color="#1a1a1a" roughness={0.3} metalness={0.8} />
-            </mesh>
-            {/* Gold Brass Collar */}
-            <mesh position={[0, -3.55, 0]}>
-              <cylinderGeometry args={[0.045, 0.045, 0.08, 16]} />
-              <primitive object={materials.goldTrim} attach="material" />
-            </mesh>
-            {/* Matte Black Conical Shade */}
-            <mesh position={[0, -3.72, 0]} rotation={[Math.PI, 0, 0]}>
-              <coneGeometry args={[0.24, 0.3, 24, 1, true]} />
-              <meshStandardMaterial
-                color="#181818"
-                roughness={0.35}
-                metalness={0.7}
-                side={THREE.DoubleSide}
-              />
-            </mesh>
-            {/* Gold Interior Reflector */}
-            <mesh position={[0, -3.74, 0]} rotation={[Math.PI, 0, 0]}>
-              <coneGeometry args={[0.23, 0.28, 24, 1, true]} />
-              <meshStandardMaterial
-                color="#ffd700"
-                roughness={0.2}
-                metalness={0.9}
-                side={THREE.DoubleSide}
-              />
-            </mesh>
-            {/* Luminous Warm Light Bulb */}
-            <mesh position={[0, -3.68, 0]}>
-              <sphereGeometry args={[0.065, 16, 16]} />
-              <meshStandardMaterial
-                color="#ffe699"
-                emissive="#ffd24d"
-                emissiveIntensity={3.5}
-                roughness={0.2}
-              />
-            </mesh>
-          </group>
-        ))}
-      </group>
     </group>
   )
 }

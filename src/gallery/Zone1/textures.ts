@@ -1546,184 +1546,343 @@ export function createIndonesianFlagTexture(): THREE.CanvasTexture {
   })
 }
 
-/** High-Resolution Undip Pataka Flag Texture */
+// Shared cached canvas for the official Undip shield logo with 100% background removal
+let cachedCleanLogoCanvas: HTMLCanvasElement | null = null
+const logoCleanListeners: Array<(canvas: HTMLCanvasElement) => void> = []
+let isLogoCleanerLoading = false
+
+export function getCleanOfficialUndipLogo(onReady: (cleanCanvas: HTMLCanvasElement) => void): void {
+  if (cachedCleanLogoCanvas) {
+    onReady(cachedCleanLogoCanvas)
+    return
+  }
+
+  logoCleanListeners.push(onReady)
+  if (isLogoCleanerLoading) return
+  isLogoCleanerLoading = true
+
+  const img = new Image()
+  img.crossOrigin = 'anonymous'
+  img.src = '/textures/undip-emblem.webp'
+  img.onload = () => {
+    const w = img.naturalWidth || 800
+    const h = img.naturalHeight || 800
+
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = w
+    tempCanvas.height = h
+    const tempCtx = tempCanvas.getContext('2d')
+    if (!tempCtx) return
+
+    tempCtx.clearRect(0, 0, w, h)
+    tempCtx.drawImage(img, 0, 0)
+
+    try {
+      const imgData = tempCtx.getImageData(0, 0, w, h)
+      const d = imgData.data
+
+      // BFS flood-fill from border pixels to erase fake checkerboard / white / gray background
+      const visited = new Uint8Array(w * h)
+      const queue: number[] = []
+
+      const pushIfBg = (x: number, y: number) => {
+        if (x < 0 || x >= w || y < 0 || y >= h) return
+        const idx = y * w + x
+        if (visited[idx]) return
+        visited[idx] = 1
+
+        const pi = idx * 4
+        const r = d[pi]
+        const g = d[pi + 1]
+        const b = d[pi + 2]
+        const a = d[pi + 3]
+
+        if (a === 0) {
+          queue.push(idx)
+          return
+        }
+
+        // Checkerboard squares in the uploaded webp are shades of light gray / white:
+        const isLightNeutral =
+          r > 150 && g > 150 && b > 150 &&
+          Math.abs(r - g) < 25 && Math.abs(g - b) < 25 && Math.abs(r - b) < 25
+
+        if (isLightNeutral) {
+          d[pi + 3] = 0 // transparent
+          queue.push(idx)
+        }
+      }
+
+      // Add 4 outer edges
+      for (let x = 0; x < w; x++) {
+        pushIfBg(x, 0)
+        pushIfBg(x, h - 1)
+      }
+      for (let y = 0; y < h; y++) {
+        pushIfBg(0, y)
+        pushIfBg(w - 1, y)
+      }
+
+      // Process BFS queue to clear background contiguous to edges
+      let qHead = 0
+      while (qHead < queue.length) {
+        const curr = queue[qHead++]
+        const cx = curr % w
+        const cy = Math.floor(curr / w)
+
+        const dirs = [
+          [cx + 1, cy],
+          [cx - 1, cy],
+          [cx, cy + 1],
+          [cx, cy - 1],
+        ]
+        for (let i = 0; i < 4; i++) {
+          const [nx, ny] = dirs[i]
+          if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+            const nidx = ny * w + nx
+            if (!visited[nidx]) {
+              visited[nidx] = 1
+              const npi = nidx * 4
+              const r = d[npi]
+              const g = d[npi + 1]
+              const b = d[npi + 2]
+              const a = d[npi + 3]
+
+              if (
+                a === 0 ||
+                (r > 150 && g > 150 && b > 150 &&
+                 Math.abs(r - g) < 25 && Math.abs(g - b) < 25 && Math.abs(r - b) < 25)
+              ) {
+                d[npi + 3] = 0
+                queue.push(nidx)
+              }
+            }
+          }
+        }
+      }
+
+      tempCtx.putImageData(imgData, 0, 0)
+
+      // Find bounding box of remaining non-transparent shield pixels
+      let minX = w
+      let maxX = 0
+      let minY = h
+      let maxY = 0
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const a = d[(y * w + x) * 4 + 3]
+          if (a > 30) {
+            if (x < minX) minX = x
+            if (x > maxX) maxX = x
+            if (y < minY) minY = y
+            if (y > maxY) maxY = y
+          }
+        }
+      }
+
+      const cleanCanvas = document.createElement('canvas')
+      cleanCanvas.width = 1024
+      cleanCanvas.height = 1024
+      const cleanCtx = cleanCanvas.getContext('2d')
+      if (cleanCtx) {
+        cleanCtx.clearRect(0, 0, 1024, 1024)
+        if (maxX > minX && maxY > minY) {
+          const sw = maxX - minX
+          const sh = maxY - minY
+          const scale = Math.min((1024 - 48) / sw, (1024 - 48) / sh)
+          const dw = sw * scale
+          const dh = sh * scale
+          const dx = (1024 - dw) / 2
+          const dy = (1024 - dh) / 2
+          cleanCtx.drawImage(tempCanvas, minX, minY, sw, sh, dx, dy, dw, dh)
+        } else {
+          cleanCtx.drawImage(tempCanvas, 0, 0, 1024, 1024)
+        }
+      }
+
+      cachedCleanLogoCanvas = cleanCanvas
+      while (logoCleanListeners.length > 0) {
+        const fn = logoCleanListeners.shift()
+        fn?.(cleanCanvas)
+      }
+    } catch (e) {
+      console.warn('Logo cleaner warning:', e)
+      cachedCleanLogoCanvas = tempCanvas
+      while (logoCleanListeners.length > 0) {
+        const fn = logoCleanListeners.shift()
+        fn?.(tempCanvas)
+      }
+    }
+  }
+}
+
+/** High-Resolution Undip Pataka Flag Texture featuring Official Undip Shield Logo (Zero background / Completely seamless) */
 export function createUndipFlagTexture(): THREE.CanvasTexture {
-  return assetCache.getTexture('flag-undip-texture', () => {
+  return assetCache.getTexture('flag-undip-official-logo-clean-v4', () => {
     const [canvas, ctx] = makeCanvas(1024, 680)
-    // Rich Royal Navy Blue Field
-    ctx.fillStyle = '#142e56'
-    ctx.fillRect(0, 0, 1024, 680)
-    // Gold Fringe Border
-    ctx.strokeStyle = '#ffd700'
-    ctx.lineWidth = 14
-    ctx.strokeRect(10, 10, 1004, 660)
-    // Inner Gold Accent Line
-    ctx.strokeStyle = '#d4af37'
-    ctx.lineWidth = 3
-    ctx.strokeRect(24, 24, 976, 632)
-    // Center Gold Shield Emblem
-    ctx.fillStyle = '#0a172c'
-    ctx.beginPath()
-    ctx.arc(512, 340, 180, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.strokeStyle = '#ffd700'
-    ctx.lineWidth = 6
-    ctx.stroke()
-    // Golden Diponegoro Silhouette
-    ctx.fillStyle = '#ffd700'
-    ctx.beginPath()
-    ctx.arc(512, 320, 70, 0, Math.PI * 2)
-    ctx.fill()
-    // Arched Title
-    ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 36px Georgia, serif'
-    ctx.textAlign = 'center'
-    ctx.fillText('UNIVERSITAS DIPONEGORO', 512, 190)
-    ctx.fillStyle = '#ffd700'
-    ctx.font = 'bold 24px Georgia, serif'
-    ctx.fillText('SEMARANG', 512, 530)
-    return toTexture(canvas)
+    const texture = toTexture(canvas)
+
+    const drawFlagBase = () => {
+      // 1. Rich Deep Royal Navy Blue Field
+      ctx.fillStyle = '#0e2444'
+      ctx.fillRect(0, 0, 1024, 680)
+
+      // 2. Gold Fringe Border (Authentic ceremonial pataka flag fringe)
+      ctx.strokeStyle = '#ffd700'
+      ctx.lineWidth = 14
+      ctx.strokeRect(10, 10, 1004, 660)
+
+      // 3. Inner Gold Accent Pin-Stripe
+      ctx.strokeStyle = '#d4af37'
+      ctx.lineWidth = 3
+      ctx.strokeRect(26, 26, 972, 628)
+    }
+
+    drawFlagBase()
+
+    // Draw the transparent-cleaned official Undip logo seamlessly onto the flag
+    getCleanOfficialUndipLogo((cleanLogoCanvas) => {
+      drawFlagBase()
+      const logoW = 300
+      const logoH = 360
+      const logoX = (1024 - logoW) / 2
+      const logoY = (680 - logoH) / 2
+      ctx.drawImage(cleanLogoCanvas, logoX, logoY, logoW, logoH)
+      texture.needsUpdate = true
+    })
+
+    return texture
   })
 }
 
-/** Grand 3D Wall Typography Texture: "UNIVERSITAS DIPONEGORO" */
+/** Grand 3D Wall Typography Texture: "UNIVERSITAS DIPONEGORO" (Royal Blue Navy, Transparent Background) */
 export function createUndipWallTypographyTexture(): THREE.CanvasTexture {
-  return assetCache.getTexture('undip-wall-typography', () => {
-    const [canvas, ctx] = makeCanvas(2048, 480)
-    ctx.clearRect(0, 0, 2048, 480)
-    // Gold Metallic Text
-    const grad = ctx.createLinearGradient(0, 50, 0, 300)
-    grad.addColorStop(0, '#fff4b8')
-    grad.addColorStop(0.3, '#ffd700')
-    grad.addColorStop(0.7, '#d4af37')
-    grad.addColorStop(1, '#94751c')
-    ctx.fillStyle = grad
+  return assetCache.getTexture('undip-wall-typography-navy-v2', () => {
+    const [canvas, ctx] = makeCanvas(3072, 768)
+    ctx.clearRect(0, 0, 3072, 768)
+
+    // Deep Authoritative Royal Blue Navy
+    const navyGrad = ctx.createLinearGradient(0, 100, 0, 500)
+    navyGrad.addColorStop(0, '#103060')
+    navyGrad.addColorStop(0.5, '#0a2148')
+    navyGrad.addColorStop(1, '#061733')
+
+    ctx.fillStyle = navyGrad
     ctx.textAlign = 'center'
-    ctx.font = 'bold 155px "Times New Roman", Georgia, serif'
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.75)'
-    ctx.shadowBlur = 18
-    ctx.shadowOffsetX = 4
+    ctx.textBaseline = 'middle'
+    ctx.shadowColor = 'rgba(6, 23, 51, 0.28)'
+    ctx.shadowBlur = 14
     ctx.shadowOffsetY = 6
-    ctx.fillText('UNIVERSITAS DIPONEGORO', 1024, 270)
+
+    // Carefully fit font within 2650px width so text is NEVER cropped
+    fitFont(ctx, 'UNIVERSITAS DIPONEGORO', '"Times New Roman", Georgia, serif', 'bold', 'normal', 2650, 160, 90)
+    ctx.fillText('UNIVERSITAS DIPONEGORO', 1536, 330)
+
+    // Subtitle: SEMARANG
     ctx.shadowColor = 'transparent'
-    // Gold fine outline
-    ctx.strokeStyle = '#ffeaa7'
-    ctx.lineWidth = 3
-    ctx.strokeText('UNIVERSITAS DIPONEGORO', 1024, 270)
+    ctx.font = '600 68px "Times New Roman", Georgia, serif'
+    ctx.fillStyle = '#122c54'
+    ctx.fillText('SEMARANG', 1536, 490)
+
     return toTexture(canvas)
   })
 }
 
 /**
  * Official Shield Logo of Universitas Diponegoro
- * Loads the official emblem image and guarantees transparent background
- * by clearing any fake checkerboard artifacts outside the shield border.
+ * Reuses the cleaned official emblem with 100% transparent background.
  */
 export function createOfficialUndipLogoTexture(): THREE.CanvasTexture {
-  return assetCache.getTexture('undip-official-logo-shield', () => {
+  return assetCache.getTexture('undip-official-logo-shield-centered', () => {
     const [canvas, ctx] = makeCanvas(1024, 1024)
     const texture = toTexture(canvas)
 
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.src = '/textures/undip-emblem.webp'
-    img.onload = () => {
-      const w = img.naturalWidth || 800
-      const h = img.naturalHeight || 800
-      canvas.width = w
-      canvas.height = h
-      ctx.clearRect(0, 0, w, h)
-      ctx.drawImage(img, 0, 0)
-
-      try {
-        const imgData = ctx.getImageData(0, 0, w, h)
-        const d = imgData.data
-
-        // BFS flood-fill from border pixels to erase fake checkerboard / white background
-        const visited = new Uint8Array(w * h)
-        const queue: number[] = []
-
-        const pushIfBg = (x: number, y: number) => {
-          if (x < 0 || x >= w || y < 0 || y >= h) return
-          const idx = y * w + x
-          if (visited[idx]) return
-          visited[idx] = 1
-
-          const pi = idx * 4
-          const r = d[pi]
-          const g = d[pi + 1]
-          const b = d[pi + 2]
-          const a = d[pi + 3]
-
-          if (a === 0) {
-            queue.push(idx)
-            return
-          }
-
-          // Checkerboard pixels: light neutral (gray or white)
-          const isLightNeutral =
-            r > 180 && g > 180 && b > 180 && Math.abs(r - g) < 25 && Math.abs(g - b) < 25
-          if (isLightNeutral) {
-            d[pi + 3] = 0 // transparent
-            queue.push(idx)
-          }
-        }
-
-        // Add 4 outer edges
-        for (let x = 0; x < w; x++) {
-          pushIfBg(x, 0)
-          pushIfBg(x, h - 1)
-        }
-        for (let y = 0; y < h; y++) {
-          pushIfBg(0, y)
-          pushIfBg(w - 1, y)
-        }
-
-        // Process queue
-        let qHead = 0
-        while (qHead < queue.length) {
-          const curr = queue[qHead++]
-          const cx = curr % w
-          const cy = Math.floor(curr / w)
-
-          const dirs = [
-            [cx + 1, cy],
-            [cx - 1, cy],
-            [cx, cy + 1],
-            [cx, cy - 1],
-          ]
-          for (let i = 0; i < 4; i++) {
-            const [nx, ny] = dirs[i]
-            if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-              const nidx = ny * w + nx
-              if (!visited[nidx]) {
-                visited[nidx] = 1
-                const npi = nidx * 4
-                const r = d[npi]
-                const g = d[npi + 1]
-                const b = d[npi + 2]
-                const a = d[npi + 3]
-
-                if (
-                  a === 0 ||
-                  (r > 175 && g > 175 && b > 175 && Math.abs(r - g) < 25 && Math.abs(g - b) < 25)
-                ) {
-                  d[npi + 3] = 0
-                  queue.push(nidx)
-                }
-              }
-            }
-          }
-        }
-
-        ctx.putImageData(imgData, 0, 0)
-      } catch (e) {
-        console.warn('Logo processing note:', e)
-      }
-
+    getCleanOfficialUndipLogo((cleanLogoCanvas) => {
+      ctx.clearRect(0, 0, 1024, 1024)
+      ctx.drawImage(cleanLogoCanvas, 0, 0, 1024, 1024)
       texture.needsUpdate = true
-    }
+    })
 
     return texture
+  })
+}
+
+/**
+ * Pure Luxury Ivory Granite Slab (Granit Ivory Alami Tanpa Corak Blue Navy)
+ * High-end architectural polished ivory stone texture:
+ * - Natural warm cream / alabaster / pearl mineral foundation
+ * - Delicate crystalline calcite stippling and subtle mica quartz flakes
+ * - Soft organic warm-sand stone marbling (Zero blue navy veins)
+ * - Pure diffuse satin finish without baked specular hotspots or glare
+ */
+export function createIvoryGraniteTexture(): THREE.CanvasTexture {
+  return assetCache.getTexture('pure-ivory-granite-texture-v4', () => {
+    const [canvas, ctx] = makeCanvas(1024, 1024)
+
+    // Base warm ivory/pearl natural stone tone
+    const bgGrad = ctx.createLinearGradient(0, 0, 1024, 1024)
+    bgGrad.addColorStop(0, '#fcfaf5')
+    bgGrad.addColorStop(0.3, '#f7f2e8')
+    bgGrad.addColorStop(0.65, '#eee7da')
+    bgGrad.addColorStop(1, '#e8e0d0')
+    ctx.fillStyle = bgGrad
+    ctx.fillRect(0, 0, 1024, 1024)
+
+    // Micro-granite mineral crystalline stippling (subtle natural stone grain)
+    for (let i = 0; i < 24000; i++) {
+      const x = Math.random() * 1024
+      const y = Math.random() * 1024
+      const r = Math.random() * 2.2 + 0.3
+      const alpha = Math.random() * 0.16 + 0.02
+      const choice = Math.random()
+      if (choice < 0.45) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 1.3})` // Calcite pearl crystal
+      } else if (choice < 0.78) {
+        ctx.fillStyle = `rgba(195, 180, 160, ${alpha * 0.9})` // Warm limestone / feldspar grain
+      } else if (choice < 0.93) {
+        ctx.fillStyle = `rgba(165, 150, 132, ${alpha * 0.7})` // Neutral quartz mineral grain
+      } else {
+        ctx.fillStyle = `rgba(215, 195, 155, ${alpha * 0.5})` // Subtle champagne mica fleck
+      }
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fill()
+    }
+
+    // Helper for subtle natural stone marbling fissures (warm ivory & sand tones ONLY, no blue)
+    const drawStoneVein = (
+      points: [number, number, number, number, number, number, number, number],
+      width: number,
+      color: string,
+      alpha: number,
+    ) => {
+      ctx.save()
+      ctx.strokeStyle = color
+      ctx.globalAlpha = alpha
+      ctx.lineWidth = width
+      ctx.lineCap = 'round'
+      ctx.beginPath()
+      ctx.moveTo(points[0], points[1])
+      ctx.bezierCurveTo(points[2], points[3], points[4], points[5], points[6], points[7])
+      ctx.stroke()
+      ctx.restore()
+    }
+
+    // Gentle, whisper-soft natural ivory stone flow (no harsh contrasting stripes)
+    drawStoneVein([0, 180, 320, 290, 640, 520, 1024, 690], 35, '#e4dbc9', 0.25)
+    drawStoneVein([0, 180, 320, 290, 640, 520, 1024, 690], 14, '#d8cdb7', 0.35)
+    drawStoneVein([0, 180, 320, 290, 640, 520, 1024, 690], 4, '#c9bea7', 0.45)
+
+    drawStoneVein([180, 0, 420, 220, 710, 440, 1024, 490], 28, '#e7decb', 0.22)
+    drawStoneVein([180, 0, 420, 220, 710, 440, 1024, 490], 10, '#ded3bf', 0.32)
+
+    drawStoneVein([0, 620, 360, 670, 680, 810, 940, 1024], 32, '#e2d8c4', 0.24)
+    drawStoneVein([0, 620, 360, 670, 680, 810, 940, 1024], 12, '#d6cab3', 0.32)
+
+    // Very fine delicate natural marble wisps
+    drawStoneVein([90, 380, 240, 340, 360, 460, 480, 520], 6, '#dfd4be', 0.35)
+    drawStoneVein([520, 640, 660, 610, 780, 710, 910, 780], 8, '#d9ceb8', 0.3)
+
+    return toTexture(canvas)
   })
 }

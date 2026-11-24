@@ -4,7 +4,6 @@ import { PerspectiveCamera } from '@react-three/drei'
 import type { SelectedExhibit, SectionType } from './types'
 import type { Founder, HistoryExhibit } from './data/exhibits'
 import {
-  MINIATURE_MAP_POS,
   PODIUM_POS,
   SECTION_TARGETS,
   START_POSITION,
@@ -13,7 +12,6 @@ import { GalleryEnvironment } from './GalleryEnvironment'
 import { GalleryLighting } from './GalleryLighting'
 import { FoundersWing } from './FoundersWing'
 import { HistoryArchivesWing } from './HistoryArchivesWing'
-import { MiniatureMap } from './MiniatureMap'
 import { CeremonialPodium } from './CeremonialPodium'
 import { FirstPersonControls } from './FirstPersonControls'
 import { DesktopHints } from './DesktopHints'
@@ -48,7 +46,7 @@ function useIsMobile(): boolean {
  * - Added 3D assets: Archival bookshelves, glass tables, visitor armchairs
  * - Aesthetic museum mood lighting & warm downlights
  */
-export function GalleryScene() {
+export function Zone1() {
   const isMobile = useIsMobile()
   const [selectedExhibit, setSelectedExhibit] = useState<SelectedExhibit | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
@@ -81,19 +79,6 @@ export function GalleryScene() {
   const handleSelectHistory = useCallback((exhibit: HistoryExhibit) => {
     if (draggedRef.current) return
     setSelectedExhibit({ type: 'history', data: exhibit })
-  }, [])
-
-  const handleSelectMap = useCallback(() => {
-    if (draggedRef.current) return
-    setSelectedExhibit({
-      type: 'miniature-map',
-      data: {
-        id: 'miniature-map',
-        title: 'Maket 3D Kampus Terpadu Undip',
-        subtitle: 'Kawasan Tembalang & Pleburan',
-        description: 'Model arsitektur masterplan kampus Universitas Diponegoro.',
-      },
-    })
   }, [])
 
   const handleSelectPodium = useCallback(() => {
@@ -177,15 +162,6 @@ export function GalleryScene() {
             onHover={handleHover}
           />
 
-          {/* Center: 3D Miniature Map of UNDIP with Red Carpet Underneath */}
-          <MiniatureMap
-            position={MINIATURE_MAP_POS}
-            isSelected={selectedExhibit?.type === 'miniature-map'}
-            isHovered={hoveredId === 'miniature-map'}
-            onSelect={handleSelectMap}
-            onHover={handleHover}
-          />
-
           {/* Center End: Ceremonial Dais & Podium with Inscription Plaque (Prasasti) */}
           <CeremonialPodium
             position={PODIUM_POS}
@@ -235,3 +211,5 @@ export function GalleryScene() {
     </div>
   )
 }
+
+export { Zone1 as Zone1Scene, Zone1 as GalleryScene }

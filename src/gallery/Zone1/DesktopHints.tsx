@@ -10,6 +10,9 @@ export function DesktopHints() {
         <kbd>S</kbd>
         <kbd>D</kbd> atau <kbd>Panah</kbd> jalan & geser
       </span>
+      <span>
+        <kbd>Shift</kbd> lari
+      </span>
       <span>klik & geser mouse untuk melihat</span>
       <span>klik objek untuk membaca informasi</span>
       <span>

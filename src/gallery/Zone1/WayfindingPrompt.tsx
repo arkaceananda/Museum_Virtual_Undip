@@ -72,24 +72,12 @@ export function WayfindingPrompt({
 
             <button
               type="button"
-              className="gr-wayfind-btn"
-              onClick={() => handleSelect('map')}
-            >
-              <span className="gr-btn-icon">🗺️</span>
-              <div className="gr-btn-text">
-                <strong>Maket 3D Kampus</strong>
-                <small>Area Tengah • Kawasan Tembalang & Pleburan</small>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className="gr-wayfind-btn"
+              className="gr-wayfind-btn gr-wayfind-gold"
               onClick={() => handleSelect('podium')}
             >
               <span className="gr-btn-icon">🎙️</span>
               <div className="gr-btn-text">
-                <strong>Podium Kehormatan</strong>
+                <strong>Podium Kehormatan Undip</strong>
                 <small>Ujung Karpet Merah • Panggung Seremonial</small>
               </div>
             </button>

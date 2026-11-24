@@ -2,17 +2,120 @@ import { useMemo } from 'react'
 import * as THREE from 'three'
 import type { CeremonialPodiumProps } from './types'
 import {
-  createPresidentTexture,
-  createVicePresidentTexture,
   createPrasastiTexture,
   createIndonesianFlagTexture,
   createUndipFlagTexture,
   createUndipWallTypographyTexture,
   createOfficialUndipLogoTexture,
+  createIvoryGraniteTexture,
 } from './textures'
-import { GarudaPancasila } from './GarudaPancasila'
 import { HALL } from './layout'
 import { assetCache } from './cache'
+
+/**
+ * Modern Architectural LED Ring Pendant Chandelier
+ * Securely anchored to the grand ceiling surface (HALL.height = 8.8m)
+ * with continuous brass aircraft suspension cables and architectural ceiling canopy,
+ * eliminating any mid-air floating appearance.
+ */
+function LedRingPendantChandelier({ position }: { position: [number, number, number] }) {
+  // Height difference from chandelier ring (y=4.8) to ceiling (y=8.8) is exactly 4.0m
+  const ceilingDist = 4.0
+
+  return (
+    <group position={position}>
+      {/* 4 Continuous Brass Aircraft Suspension Cables reaching the ceiling flush */}
+      {[-0.95, 0.95].map((cx, ci) =>
+        [-0.75, 0.75].map((cz, czi) => (
+          <group key={`wire-${ci}-${czi}`}>
+            {/* Cable spanning full 4.0m to ceiling */}
+            <mesh position={[cx, ceilingDist / 2, cz]}>
+              <cylinderGeometry args={[0.0035, 0.0035, ceilingDist, 8]} />
+              <meshStandardMaterial color="#c5a059" metalness={0.9} roughness={0.2} />
+            </mesh>
+            {/* Ceiling Cable Tensioner / Anchor Stud */}
+            <mesh position={[cx, ceilingDist - 0.02, cz]}>
+              <cylinderGeometry args={[0.016, 0.016, 0.04, 12]} />
+              <meshStandardMaterial color="#c5a059" metalness={0.9} roughness={0.2} />
+            </mesh>
+          </group>
+        )),
+      )}
+
+      {/* Central Structural Downrod / Power Conduit running to ceiling */}
+      <mesh position={[0, ceilingDist / 2, 0]}>
+        <cylinderGeometry args={[0.01, 0.01, ceilingDist, 16]} />
+        <meshStandardMaterial color="#c5a059" metalness={0.88} roughness={0.25} />
+      </mesh>
+
+      {/* Grand Ceiling Mounting Canopy Rose (Anchored flush against the ceiling at y=4.0) */}
+      <group position={[0, ceilingDist - 0.02, 0]}>
+        {/* Main Architectural Canopy Plate */}
+        <mesh>
+          <cylinderGeometry args={[0.38, 0.38, 0.05, 32]} />
+          <meshStandardMaterial color="#c5a059" metalness={0.88} roughness={0.25} />
+        </mesh>
+        {/* Ceiling Trim Bezel */}
+        <mesh position={[0, 0.026, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.36, 0.44, 32]} />
+          <meshStandardMaterial color="#d4af37" metalness={0.92} roughness={0.2} />
+        </mesh>
+        {/* Center Cable Hub Coupler */}
+        <mesh position={[0, -0.04, 0]}>
+          <cylinderGeometry args={[0.06, 0.08, 0.06, 24]} />
+          <meshStandardMaterial color="#c5a059" metalness={0.9} roughness={0.2} />
+        </mesh>
+      </group>
+
+      {/* Outer Ring Torus (Diameter ~2.6m) */}
+      <group position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        {/* Outer Brushed Brass Casing */}
+        <mesh castShadow>
+          <torusGeometry args={[1.3, 0.026, 16, 48]} />
+          <meshStandardMaterial color="#c5a059" metalness={0.88} roughness={0.22} />
+        </mesh>
+        {/* Outer Warm Cream LED Diffuser Ring */}
+        <mesh position={[0, 0, 0.012]}>
+          <torusGeometry args={[1.3, 0.016, 16, 48]} />
+          <meshStandardMaterial
+            color="#fff8ed"
+            emissive="#ffdca3"
+            emissiveIntensity={3.2}
+            roughness={0.2}
+          />
+        </mesh>
+      </group>
+
+      {/* Inner Ring Torus (Diameter ~1.6m) */}
+      <group position={[0, -0.12, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        {/* Inner Brushed Brass Casing */}
+        <mesh castShadow>
+          <torusGeometry args={[0.8, 0.022, 16, 40]} />
+          <meshStandardMaterial color="#c5a059" metalness={0.88} roughness={0.22} />
+        </mesh>
+        {/* Inner Warm Cream LED Diffuser Ring */}
+        <mesh position={[0, 0, 0.012]}>
+          <torusGeometry args={[0.8, 0.014, 16, 40]} />
+          <meshStandardMaterial
+            color="#fff8ed"
+            emissive="#ffdca3"
+            emissiveIntensity={3.2}
+            roughness={0.2}
+          />
+        </mesh>
+      </group>
+
+      {/* Soft Warm Cream Downward Illumination onto Dais (Gentle, non-glaring) */}
+      <pointLight
+        position={[0, -0.4, 0]}
+        color="#fff3e0"
+        intensity={24}
+        distance={10.0}
+        decay={2}
+      />
+    </group>
+  )
+}
 
 /**
  * Static Curved Fabric Flag Component (Lightweight, Zero Animation Overhead)
@@ -72,31 +175,69 @@ function StaticCurvedFlag({
  */
 export function CeremonialPodium({
   position,
-  isSelected,
-  isHovered,
+  isSelected: _isSelected,
+  isHovered: _isHovered,
   onSelect,
   onHover,
   onSelectPrasasti,
 }: CeremonialPodiumProps) {
-  const presTexture = useMemo(() => createPresidentTexture(), [])
-  const vpTexture = useMemo(() => createVicePresidentTexture(), [])
   const prasastiTexture = useMemo(() => createPrasastiTexture(), [])
   const wallTitleTexture = useMemo(() => createUndipWallTypographyTexture(), [])
   const indoFlagTexture = useMemo(() => createIndonesianFlagTexture(), [])
   const undipFlagTexture = useMemo(() => createUndipFlagTexture(), [])
+  const ivoryGraniteTexture = useMemo(() => createIvoryGraniteTexture(), [])
 
   // Load the official Undip shield logo from the user's reference photo (auto-cleaned background)
   const officialLogoTexture = useMemo(() => createOfficialUndipLogoTexture(), [])
 
   const baseMaterials = useMemo(() => {
     return {
+      ivoryGraniteMaterial: assetCache.getMaterial(
+        'pod-pure-ivory-granite-v4',
+        () =>
+          new THREE.MeshStandardMaterial({
+            map: ivoryGraniteTexture,
+            color: '#ffffff',
+            roughness: 0.95, // Pure honed matte natural stone - zero specular reflection
+            metalness: 0.0,
+          }),
+      ),
+      futuristicWood: assetCache.getMaterial(
+        'pod-futuristic-wood',
+        () =>
+          new THREE.MeshStandardMaterial({
+            color: '#8c5828',
+            roughness: 0.55,
+            metalness: 0.05,
+          }),
+      ),
+      woodSlat: assetCache.getMaterial(
+        'pod-wood-slat',
+        () =>
+          new THREE.MeshStandardMaterial({
+            color: '#6e401b',
+            roughness: 0.58,
+            metalness: 0.05,
+          }),
+      ),
+      warmCoveLightGlow: assetCache.getMaterial(
+        'pod-warm-cove-glow',
+        () =>
+          new THREE.MeshStandardMaterial({
+            color: '#ffe082',
+            emissive: '#ff9800',
+            emissiveIntensity: 2.2,
+            roughness: 0.35,
+            metalness: 0.05,
+          }),
+      ),
       teakWood: assetCache.getMaterial(
         'pod-teak-wood',
         () =>
           new THREE.MeshStandardMaterial({
             color: '#3d2516',
-            roughness: 0.45,
-            metalness: 0.12,
+            roughness: 0.52,
+            metalness: 0.08,
           }),
       ),
       darkTeakCarved: assetCache.getMaterial(
@@ -104,46 +245,46 @@ export function CeremonialPodium({
         () =>
           new THREE.MeshStandardMaterial({
             color: '#2a180e',
-            roughness: 0.5,
-            metalness: 0.1,
+            roughness: 0.58,
+            metalness: 0.08,
           }),
       ),
       navyWallPanel: assetCache.getMaterial(
-        'pod-navy-wall-vibrant',
+        'pod-navy-wall-matte-v4',
         () =>
           new THREE.MeshStandardMaterial({
-            color: '#142e56',
-            roughness: 0.35,
-            metalness: 0.22,
+            color: '#122c54',
+            roughness: 0.92, // Matte museum architectural paint - zero specular reflection
+            metalness: 0.0,
           }),
       ),
       navyPanel: assetCache.getMaterial(
-        'pod-navy-panel-vibrant',
+        'pod-navy-panel-matte-v4',
         () =>
           new THREE.MeshStandardMaterial({
-            color: '#1a3b6c',
-            roughness: 0.35,
-            metalness: 0.25,
+            color: '#163666',
+            roughness: 0.92,
+            metalness: 0.0,
           }),
       ),
       goldTrim: assetCache.getMaterial(
-        'pod-gold-trim',
+        'pod-gold-trim-satin-v4',
         () =>
           new THREE.MeshStandardMaterial({
             color: '#d4af37',
-            roughness: 0.25,
-            metalness: 0.88,
+            roughness: 0.52, // Satin brushed brass - soft diffuse, no sharp hotspot glare
+            metalness: 0.7,
           }),
       ),
       goldBright: assetCache.getMaterial(
-        'pod-gold-bright',
+        'pod-gold-bright-satin-v4',
         () =>
           new THREE.MeshStandardMaterial({
             color: '#f9d342',
-            emissive: '#ffd700',
-            emissiveIntensity: 0.2,
-            roughness: 0.2,
-            metalness: 0.9,
+            emissive: '#d4af37',
+            emissiveIntensity: 0.05,
+            roughness: 0.52,
+            metalness: 0.65,
           }),
       ),
       blackGranite: assetCache.getMaterial(
@@ -236,6 +377,53 @@ export function CeremonialPodium({
           <primitive object={materials.goldTrim} attach="material" />
         </mesh>
 
+        {/* ============================================================
+            INDIRECT LINEAR LIGHTING & RECESSED LED DOWNLIGHTS (CEILING CORNICE)
+            "pakaikan lampu downlight soft warm cream, Recessed LED Downlight... Indirect Linear Lighting"
+            ============================================================ */}
+        {/* Top Indirect Linear Lighting Cove Strip (Washing upper wall & ceiling) */}
+        <mesh position={[0, height / 2 - 0.18, 0.09]}>
+          <boxGeometry args={[halfW * 2 - 0.4, 0.04, 0.04]} />
+          <meshStandardMaterial
+            color="#fff8ec"
+            emissive="#ffeacc"
+            emissiveIntensity={2.8}
+            roughness={0.2}
+          />
+        </mesh>
+
+        {/* Recessed Architectural LED Downlight Can Fixtures along the back ceiling */}
+        {[-5.0, -3.2, -1.5, 0, 1.5, 3.2, 5.0].map((rx, ri) => (
+          <group key={`recessed-can-${ri}`} position={[rx, height / 2 - 0.14, 0.35]}>
+            {/* Outer Canister Bezel Ring */}
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.18, 0.18, 0.06, 24]} />
+              <primitive object={materials.goldTrim} attach="material" />
+            </mesh>
+            {/* Frosted Warm Cream LED Diode Lens */}
+            <mesh position={[0, -0.015, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.13, 0.13, 0.02, 24]} />
+              <meshStandardMaterial
+                color="#fffcf5"
+                emissive="#ffedd0"
+                emissiveIntensity={3.6}
+                roughness={0.15}
+              />
+            </mesh>
+            {/* Downward Focused Soft Warm Cream Spot */}
+            <spotLight
+              position={[0, -0.05, 0]}
+              target-position={[0, -5.0, 0]}
+              color="#fff4df"
+              intensity={32}
+              angle={0.52}
+              penumbra={0.7}
+              distance={11.0}
+              decay={2}
+            />
+          </group>
+        ))}
+
         {/* Left & Right Flanking Gold Pilasters */}
         {[-halfW + 0.06, halfW - 0.06].map((cx, ci) => (
           <mesh key={ci} position={[cx, 0, 0.03]}>
@@ -245,7 +433,7 @@ export function CeremonialPodium({
         ))}
 
         {/* Interior Gold Pilasters Framing the Center Dais */}
-        {[-4.6, 4.6].map((px, pi) => (
+        {[-5.1, 5.1].map((px, pi) => (
           <group key={`pila-${pi}`} position={[px, 0, 0.03]}>
             <mesh>
               <boxGeometry args={[0.14, height - 0.5, 0.04]} />
@@ -263,115 +451,157 @@ export function CeremonialPodium({
         ))}
 
         {/* ============================================================
-            2. PATUNG LAMBANG GARUDA PANCASILA (TOP CENTER)
+            LAYER 1 (BASE BACKGROUND): DEEP ROYAL NAVY BLUE WALL
+            (Navy wall paneling spans the entire background at z=0.02)
             ============================================================ */}
-        <GarudaPancasila position={[0, 2.7, 0.15]} scale={1.65} />
 
         {/* ============================================================
-            3. DUA FOTO RESMI: PRESIDEN & WAKIL PRESIDEN RI
+            LAYER 2: FUTURISTIC ARCHITECTURAL TIMBER & WOOD SLAT FEATURE
+            (Overlays Layer 1 in the Center, wide horizontal rectangle: 9.0m x 5.2m)
             ============================================================ */}
-        {/* Foto Presiden RI (Sisi Kiri Penonton) */}
-        <group position={[-2.7, 0.8, 0.12]}>
+        <group position={[0, 0.05, 0.07]}>
+          {/* Main Architectural Wood Backing Frame (Rectangle: 9.0m x 5.2m) */}
           <mesh castShadow receiveShadow>
-            <boxGeometry args={[1.35, 1.76, 0.08]} />
-            <primitive object={materials.goldTrim} attach="material" />
+            <boxGeometry args={[9.0, 5.2, 0.06]} />
+            <primitive object={materials.futuristicWood} attach="material" />
           </mesh>
-          <mesh position={[0, 0, 0.025]} receiveShadow>
-            <boxGeometry args={[1.2, 1.6, 0.05]} />
-            <primitive object={materials.navyPanel} attach="material" />
-          </mesh>
-          <mesh position={[0, 0, 0.045]}>
-            <planeGeometry args={[1.12, 1.52]} />
-            <meshStandardMaterial map={presTexture} roughness={0.5} />
-          </mesh>
-          <mesh position={[0, -0.96, 0.05]}>
-            <boxGeometry args={[1.05, 0.1, 0.02]} />
-            <primitive object={materials.goldTrim} attach="material" />
-          </mesh>
-        </group>
 
-        {/* Foto Wakil Presiden RI (Sisi Kanan Penonton) */}
-        <group position={[2.7, 0.8, 0.12]}>
-          <mesh castShadow receiveShadow>
-            <boxGeometry args={[1.35, 1.76, 0.08]} />
-            <primitive object={materials.goldTrim} attach="material" />
-          </mesh>
-          <mesh position={[0, 0, 0.025]} receiveShadow>
-            <boxGeometry args={[1.2, 1.6, 0.05]} />
-            <primitive object={materials.navyPanel} attach="material" />
-          </mesh>
-          <mesh position={[0, 0, 0.045]}>
-            <planeGeometry args={[1.12, 1.52]} />
-            <meshStandardMaterial map={vpTexture} roughness={0.5} />
-          </mesh>
-          <mesh position={[0, -0.96, 0.05]}>
-            <boxGeometry args={[1.05, 0.1, 0.02]} />
-            <primitive object={materials.goldTrim} attach="material" />
-          </mesh>
-        </group>
+          {/* Left Wing Futuristic Vertical Wood Slats */}
+          {Array.from({ length: 6 }).map((_, i) => {
+            const slatX = -4.25 + i * 0.16
+            return (
+              <group key={`l-slat-${i}`} position={[slatX, 0, 0.04]}>
+                <mesh castShadow receiveShadow>
+                  <boxGeometry args={[0.08, 4.8, 0.04]} />
+                  <primitive object={materials.woodSlat} attach="material" />
+                </mesh>
+                <mesh position={[0, 0, 0.022]}>
+                  <boxGeometry args={[0.02, 4.7, 0.01]} />
+                  <primitive object={materials.goldTrim} attach="material" />
+                </mesh>
+              </group>
+            )
+          })}
 
-        {/* ============================================================
-            4. PROMINENT GRAND OFFICIAL UNDIP LOGO & "UNIVERSITAS DIPONEGORO"
-            Matching the official shield emblem from user reference photo
-            ============================================================ */}
-        <group position={[0, 0.8, 0.16]}>
-          {/* Subtle Backplate Cushion with Gilded Rim for the Shield Emblem */}
-          <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
-            <planeGeometry args={[1.72, 2.02]} />
-            <meshStandardMaterial
-              color="#0e223f"
-              roughness={0.4}
-              metalness={0.2}
-            />
-          </mesh>
-          {/* Official Shield Face with Undip Emblem */}
-          <mesh position={[0, 0.45, 0.015]}>
-            <planeGeometry args={[1.7, 2.0]} />
-            <meshStandardMaterial
-              map={officialLogoTexture}
-              transparent
-              roughness={0.2}
-              metalness={0.3}
-            />
-          </mesh>
+          {/* Right Wing Futuristic Vertical Wood Slats */}
+          {Array.from({ length: 6 }).map((_, i) => {
+            const slatX = 3.45 + i * 0.16
+            return (
+              <group key={`r-slat-${i}`} position={[slatX, 0, 0.04]}>
+                <mesh castShadow receiveShadow>
+                  <boxGeometry args={[0.08, 4.8, 0.04]} />
+                  <primitive object={materials.woodSlat} attach="material" />
+                </mesh>
+                <mesh position={[0, 0, 0.022]}>
+                  <boxGeometry args={[0.02, 4.7, 0.01]} />
+                  <primitive object={materials.goldTrim} attach="material" />
+                </mesh>
+              </group>
+            )
+          })}
+
+          {/* Modern Architectural Vertical Linear Light Droplets */}
+          {[-4.35, -3.4, 3.4, 4.35].map((lx, li) => (
+            <mesh key={`v-glow-${li}`} position={[lx, 1.2 - (li % 2) * 0.35, 0.065]}>
+              <cylinderGeometry args={[0.014, 0.014, 1.6 + (li % 2) * 0.4, 12]} />
+              <primitive object={materials.warmCoveLightGlow} attach="material" />
+            </mesh>
+          ))}
 
           {/* ============================================================
-              GRAND ARCHITECTURAL TYPOGRAPHY: "UNIVERSITAS DIPONEGORO"
+              WARM LIGHT KUNING: COVE LIGHTING ON INNER REVEAL OF LAYER 2
               ============================================================ */}
-          <group position={[0, -0.95, 0.04]}>
-            {/* Gold Architectural Plaque Frame */}
-            <mesh position={[0, 0, 0]} castShadow>
-              <boxGeometry args={[6.6, 0.72, 0.05]} />
-              <primitive object={materials.goldTrim} attach="material" />
-            </mesh>
-            {/* Deep Navy Inner Inset */}
-            <mesh position={[0, 0, 0.028]}>
-              <boxGeometry args={[6.46, 0.58, 0.02]} />
-              <primitive object={materials.navyWallPanel} attach="material" />
-            </mesh>
-            {/* Gilded 3D Inscription Text */}
-            <mesh position={[0, 0.02, 0.042]}>
-              <planeGeometry args={[6.3, 0.52]} />
+          {/* Top Cove Strip */}
+          <mesh position={[0, 2.35, 0.05]}>
+            <boxGeometry args={[8.4, 0.035, 0.035]} />
+            <primitive object={materials.warmCoveLightGlow} attach="material" />
+          </mesh>
+          {/* Bottom Cove Strip */}
+          <mesh position={[0, -2.35, 0.05]}>
+            <boxGeometry args={[8.4, 0.035, 0.035]} />
+            <primitive object={materials.warmCoveLightGlow} attach="material" />
+          </mesh>
+          {/* Left Cove Strip */}
+          <mesh position={[-4.1, 0, 0.05]}>
+            <boxGeometry args={[0.035, 4.7, 0.035]} />
+            <primitive object={materials.warmCoveLightGlow} attach="material" />
+          </mesh>
+          {/* Right Cove Strip */}
+          <mesh position={[4.1, 0, 0.05]}>
+            <boxGeometry args={[0.035, 4.7, 0.035]} />
+            <primitive object={materials.warmCoveLightGlow} attach="material" />
+          </mesh>
+
+          {/* Architectural Cove Lighting is provided softly and uniformly
+              by the emissive cove channels and indirect back-glow mesh,
+              completely removing harsh localized point-light flare hotspots */}
+
+          {/* ============================================================
+              LAYER 3: POLISHED IVORY GRANITE RECTANGULAR MONOLITH
+              "kalau layer2 persegi panjang, layer 3 juga dibuat sama, bedanya nanti ada gap diantara mereka"
+              Layer 2: 9.0m x 5.2m
+              Layer 3: 7.8m x 4.2m (Uniform 60cm lateral reveal & 50cm vertical reveal gap!)
+              ============================================================ */}
+          <group position={[0, 0, 0.12]}>
+            {/* Architectural Indirect Cove Backlight behind Layer 3 */}
+            <mesh position={[0, 0, -0.015]}>
+              <boxGeometry args={[7.84, 4.24, 0.02]} />
               <meshStandardMaterial
-                map={wallTitleTexture}
-                transparent
-                roughness={0.2}
-                metalness={0.85}
+                color="#ffecc7"
+                emissive="#ffb74d"
+                emissiveIntensity={2.2}
+                roughness={0.4}
               />
             </mesh>
 
-            {/* Subtitle Ribbon: "SEMARANG • DIES NATALIS 15 OKTOBER 1957" */}
-            <mesh position={[0, -0.46, 0.02]}>
-              <boxGeometry args={[4.4, 0.2, 0.03]} />
-              <primitive object={materials.goldBright} attach="material" />
+            {/* Gilded Bevel Perimeter Trim for Granite Slab */}
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[7.86, 4.26, 0.055]} />
+              <primitive object={materials.goldTrim} attach="material" />
             </mesh>
-            <mesh position={[0, -0.46, 0.038]}>
-              <boxGeometry args={[4.28, 0.15, 0.01]} />
-              <primitive object={materials.navyWallPanel} attach="material" />
+
+            {/* Main Pure Ivory Granite Slab (Matte Honed, Zero specular glare) */}
+            <mesh position={[0, 0, 0.015]} castShadow receiveShadow>
+              <boxGeometry args={[7.8, 4.2, 0.05]} />
+              <primitive object={materials.ivoryGraniteMaterial} attach="material" />
+            </mesh>
+
+            {/* ============================================================
+                ON LAYER 3:
+                1. PROMINENT OFFICIAL UNDIP SHIELD LOGO (Perfectly Centered, Clean Shield Face)
+                2. PURE BLUE NAVY TYPOGRAPHY: "UNIVERSITAS DIPONEGORO" (Wide, Uncropped, No background boxes!)
+                ============================================================ */}
+
+            {/* 1. OFFICIAL UNDIP SHIELD LOGO (CENTERED & MATTE DIFFUSE) */}
+            <mesh position={[0, 0.65, 0.045]}>
+              <planeGeometry args={[1.65, 1.95]} />
+              <meshStandardMaterial
+                map={officialLogoTexture}
+                transparent
+                roughness={0.88}
+                metalness={0.0}
+              />
+            </mesh>
+
+            {/* 2. GRAND ARCHITECTURAL TYPOGRAPHY: "UNIVERSITAS DIPONEGORO" (MATTE NAVY) */}
+            <mesh position={[0, -0.92, 0.045]}>
+              <planeGeometry args={[6.6, 1.65]} />
+              <meshStandardMaterial
+                map={wallTitleTexture}
+                transparent
+                roughness={0.88}
+                metalness={0.0}
+              />
             </mesh>
           </group>
         </group>
       </group>
+
+      {/* ============================================================
+          MODERN ARCHITECTURAL LED RING PENDANT CHANDELIER
+          Suspended gracefully from the ceiling above the stage dais
+          ============================================================ */}
+      <LedRingPendantChandelier position={[0, 4.8, 0.4]} />
 
       {/* ============================================================
           5. STAGE DAIS & CEREMONIAL PODIUM
@@ -509,10 +739,10 @@ export function CeremonialPodium({
         </group>
 
         {/* ============================================================
-            6. MONUMENTAL PRASASTI PENDIRIAN & PERESMIAN UNDIP
+            6. MONUMENTAL PRASASTI PENDIRIAN & PERESMIAN UNDIP (LEFT FLANK)
             ============================================================ */}
         <group
-          position={[-3.8, 0, -1.8]}
+          position={[-4.0, 0, -1.8]}
           onPointerOver={(e) => {
             e.stopPropagation()
             onHover('prasasti')
@@ -575,40 +805,34 @@ export function CeremonialPodium({
               )),
             )}
           </group>
-
-          {/* Interactive Highlight Ring when hovering over Prasasti */}
-          {(isHovered || isSelected) && (
-            <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-              <ringGeometry args={[1.1, 1.25, 32]} />
-              <meshBasicMaterial color="#f9d342" transparent opacity={0.8} />
-            </mesh>
-          )}
         </group>
 
         {/* ============================================================
-            7. NATURALLY WAVING CEREMONIAL FLAGS (INDONESIA & PATAKA UNDIP)
-            Fluttering softly in the air like real woven silk
+            7. NATURALLY WAVING CEREMONIAL FLAGS (RIGHT FLANK)
+            Symmetrically placed opposite Prasasti.
+            "hapus kuningan di depan palang tiang bendera" -> Clean teakwood base without brass faceplates.
             ============================================================ */}
-        <group position={[-3.2, 0, -2.35]}>
-          {/* Polished Teakwood & Gold Stand */}
+        <group position={[4.0, 0, -1.8]}>
+          {/* Polished Teakwood Stand (Clean architectural timber, no clashing brass front) */}
           <mesh position={[0, 0.08, 0]} castShadow receiveShadow>
-            <boxGeometry args={[2.4, 0.16, 0.8]} />
+            <boxGeometry args={[1.9, 0.16, 0.7]} />
             <primitive object={materials.teakWood} attach="material" />
           </mesh>
-          <mesh position={[0, 0.165, 0]}>
-            <boxGeometry args={[2.34, 0.02, 0.74]} />
-            <primitive object={materials.goldTrim} attach="material" />
+          <mesh position={[0, 0.162, 0]} receiveShadow>
+            <boxGeometry args={[1.84, 0.015, 0.64]} />
+            <primitive object={materials.darkTeakCarved} attach="material" />
           </mesh>
 
-          {[-0.55, 0.55].map((sx, si) => (
-            <mesh key={si} position={[sx, 0.22, 0]} castShadow>
-              <cylinderGeometry args={[0.065, 0.085, 0.12, 16]} />
+          {/* Recessed Brass Sockets for flagpoles */}
+          {[-0.45, 0.45].map((sx, si) => (
+            <mesh key={si} position={[sx, 0.18, 0]} castShadow>
+              <cylinderGeometry args={[0.05, 0.065, 0.06, 16]} />
               <primitive object={materials.goldBrass} attach="material" />
             </mesh>
           ))}
 
-          {/* 7A. BENDERA MERAH PUTIH (WAVING SILK) */}
-          <group position={[-0.55, 0.22, 0]}>
+          {/* 7A. BENDERA MERAH PUTIH */}
+          <group position={[-0.45, 0.18, 0]}>
             {/* Brass Flagpole */}
             <mesh position={[0, 1.8, 0]} castShadow>
               <cylinderGeometry args={[0.022, 0.022, 3.6, 16]} />
@@ -618,7 +842,7 @@ export function CeremonialPodium({
               <coneGeometry args={[0.055, 0.18, 12]} />
               <primitive object={materials.goldBrass} attach="material" />
             </mesh>
-            {/* Static Curved Fabric Mesh (Pre-draped silk, zero animation overhead) */}
+            {/* Static Curved Fabric Mesh */}
             <StaticCurvedFlag
               position={[0.54, 2.7, 0]}
               width={1.08}
@@ -627,8 +851,8 @@ export function CeremonialPodium({
             />
           </group>
 
-          {/* 7B. BENDERA PATAKA UNDIP (STATIC CURVED SILK WITH OFFICIAL CREST) */}
-          <group position={[0.55, 0.22, 0]}>
+          {/* 7B. BENDERA PATAKA UNDIP */}
+          <group position={[0.45, 0.18, 0]}>
             {/* Brass Flagpole */}
             <mesh position={[0, 1.8, 0]} castShadow>
               <cylinderGeometry args={[0.022, 0.022, 3.6, 16]} />
@@ -638,7 +862,7 @@ export function CeremonialPodium({
               <coneGeometry args={[0.055, 0.18, 12]} />
               <primitive object={materials.goldBrass} attach="material" />
             </mesh>
-            {/* Static Curved Fabric Mesh (Pre-draped silk, zero animation overhead) */}
+            {/* Static Curved Fabric Mesh */}
             <StaticCurvedFlag
               position={[0.54, 2.7, 0]}
               width={1.08}
@@ -647,14 +871,6 @@ export function CeremonialPodium({
             />
           </group>
         </group>
-
-        {/* Hover Highlight Ring around podium */}
-        {(isHovered || isSelected) && (
-          <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[2.8, 2.95, 32]} />
-            <meshBasicMaterial color="#d4af37" transparent opacity={0.7} />
-          </mesh>
-        )}
       </group>
     </group>
   )

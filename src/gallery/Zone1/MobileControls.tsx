@@ -65,9 +65,6 @@ export function MobileControls({
         <button type="button" onClick={() => onTeleport('founders')}>
           👥 Pendiri & Rektorat
         </button>
-        <button type="button" onClick={() => onTeleport('map')}>
-          🗺️ Maket
-        </button>
         <button type="button" onClick={() => onTeleport('podium')}>
           🎙️ Podium
         </button>
